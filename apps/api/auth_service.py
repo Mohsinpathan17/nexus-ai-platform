@@ -11,6 +11,8 @@ from database import get_db
 from models import User
 
 SECRET_KEY = os.getenv("JWT_SECRET", "nexus-dev-secret-change-me")
+if os.getenv("ENVIRONMENT") == "production" and SECRET_KEY == "nexus-dev-secret-change-me":
+    raise RuntimeError("Set JWT_SECRET to a unique secret in production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_TTL_MINUTES", "60"))
 

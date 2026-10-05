@@ -86,6 +86,10 @@ docker compose up --build
 
 This runs the API and the React app as a single deployment unit without hardcoding a wildcard CORS policy.
 
+## Cloud deployment
+
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for deploying the frontend to Vercel and the FastAPI backend to Render.
+
 ## Project commands
 
 ```bash

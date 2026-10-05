@@ -12,6 +12,6 @@ def redis_health() -> dict:
 
     try:
         client.ping()
-        return {"status": "ok", "url": REDIS_URL}
-    except Exception as exc:  # pragma: no cover - runtime-only health probe
-        return {"status": "error", "url": REDIS_URL, "error": str(exc)}
+        return {"status": "ok"}
+    except Exception:  # pragma: no cover - runtime-only health probe
+        return {"status": "error"}
