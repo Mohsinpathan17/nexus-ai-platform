@@ -1,0 +1,240 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "NEXYRAL single-server beta foundation: Ubuntu EC2, private release access, Session Manager and HTTPS-only public ingress. Billable resources; application installation is a separate reviewed step.",
+  "Parameters": {
+    "VpcId": {
+      "Type": "AWS::EC2::VPC::Id",
+      "Description": "VPC containing the selected public subnet."
+    },
+    "SubnetId": {
+      "Type": "AWS::EC2::Subnet::Id",
+      "Description": "Public subnet in that VPC with an Internet Gateway route."
+    },
+    "UbuntuAmi": {
+      "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+      "Default": "/aws/service/canonical/ubuntu/server/24.04/stable/current/amd64/hvm/ebs-gp3/ami-id",
+      "Description": "Canonical Ubuntu 24.04 x86_64 AMI parameter; verify regional availability before creating the stack."
+    },
+    "InstanceType": {
+      "Type": "String",
+      "Default": "t3.large",
+      "AllowedValues": [
+        "t3.small",
+        "t3.medium",
+        "t3.large",
+        "t3.xlarge"
+      ],
+      "Description": "t3.small is an accounts-only option with the worker disabled; t3.large is a CPU-model beta starting point, not a tested throughput guarantee. Review regional prices. Standard CPU credits avoid surplus-credit billing."
+    },
+    "DiskGiB": {
+      "Type": "Number",
+      "Default": 80,
+      "MinValue": 40,
+      "MaxValue": 200,
+      "Description": "Encrypted gp3 root disk. Retained on termination; backups still required and retained volumes incur charges."
+    },
+    "ReleaseBucket": {
+      "Type": "String",
+      "AllowedPattern": "[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]",
+      "Description": "Existing private S3 bucket in this account containing the three release files."
+    },
+    "ReleasePrefix": {
+      "Type": "String",
+      "Default": "nexyral-release",
+      "AllowedPattern": "[A-Za-z0-9][A-Za-z0-9/_-]{0,100}",
+      "Description": "S3 key prefix without a trailing slash. No credentials or runtime database in the release."
+    }
+  },
+  "Resources": {
+    "HostSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Public HTTP certificate challenges and HTTPS; no SSH, API, model or Docker ingress.",
+        "VpcId": {
+          "Ref": "VpcId"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 80,
+            "ToPort": 80,
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 443,
+            "ToPort": 443,
+            "CidrIp": "0.0.0.0/0"
+          }
+        ],
+        "SecurityGroupEgress": [
+          {
+            "IpProtocol": "-1",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      }
+    },
+    "HostRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ec2.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore"
+          }
+        ],
+        "Policies": [
+          {
+            "PolicyName": "ReadNexyralRelease",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:GetObject"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Sub": "arn:${AWS::Partition}:s3:::${ReleaseBucket}/${ReleasePrefix}/nexyral-backend-source.tar.gz"
+                    },
+                    {
+                      "Fn::Sub": "arn:${AWS::Partition}:s3:::${ReleaseBucket}/${ReleasePrefix}/nexyral-backend-source.tar.gz.sha256"
+                    },
+                    {
+                      "Fn::Sub": "arn:${AWS::Partition}:s3:::${ReleaseBucket}/${ReleasePrefix}/bootstrap-free-vm.sh"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "HostProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Roles": [
+          {
+            "Ref": "HostRole"
+          }
+        ]
+      }
+    },
+    "Host": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId": {
+          "Ref": "UbuntuAmi"
+        },
+        "InstanceType": {
+          "Ref": "InstanceType"
+        },
+        "IamInstanceProfile": {
+          "Ref": "HostProfile"
+        },
+        "CreditSpecification": {
+          "CPUCredits": "standard"
+        },
+        "MetadataOptions": {
+          "HttpTokens": "required",
+          "HttpEndpoint": "enabled",
+          "HttpPutResponseHopLimit": 1
+        },
+        "NetworkInterfaces": [
+          {
+            "DeviceIndex": "0",
+            "AssociatePublicIpAddress": true,
+            "SubnetId": {
+              "Ref": "SubnetId"
+            },
+            "GroupSet": [
+              {
+                "Ref": "HostSecurityGroup"
+              }
+            ]
+          }
+        ],
+        "BlockDeviceMappings": [
+          {
+            "DeviceName": "/dev/sda1",
+            "Ebs": {
+              "VolumeType": "gp3",
+              "VolumeSize": {
+                "Ref": "DiskGiB"
+              },
+              "Encrypted": true,
+              "DeleteOnTermination": false
+            }
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "${AWS::StackName}-nexyral"
+            }
+          }
+        ]
+      }
+    },
+    "PublicIp": {
+      "Type": "AWS::EC2::EIP",
+      "Properties": {
+        "Domain": "vpc"
+      }
+    },
+    "PublicIpAssociation": {
+      "Type": "AWS::EC2::EIPAssociation",
+      "Properties": {
+        "InstanceId": {
+          "Ref": "Host"
+        },
+        "AllocationId": {
+          "Fn::GetAtt": [
+            "PublicIp",
+            "AllocationId"
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "InstanceId": {
+      "Value": {
+        "Ref": "Host"
+      },
+      "Description": "Connect using EC2 > Connect > Session Manager. No SSH port is open."
+    },
+    "PublicIPv4": {
+      "Value": {
+        "Ref": "PublicIp"
+      },
+      "Description": "Point the app and preview DNS A records here."
+    },
+    "Region": {
+      "Value": {
+        "Ref": "AWS::Region"
+      }
+    },
+    "ReleaseLocation": {
+      "Value": {
+        "Fn::Sub": "s3://${ReleaseBucket}/${ReleasePrefix}/"
+      },
+      "Description": "Private source release prefix. Application is not installed automatically."
+    }
+  }
+}

@@ -1,0 +1,72 @@
+import { test, expect } from "@playwright/test";
+
+for (const theme of ["dark", "light"] as const) {
+  for (const width of [375, 1440]) {
+    test(`owner retry preserves context ${theme} ${width}`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 950 });
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      const errors: string[] = [];
+      page.on("pageerror", error => errors.push(error.message));
+      page.on("console", message => { if (message.type() === "error") errors.push(message.text()); });
+      await page.goto("/get-started"); await page.selectOption("select", theme);
+      await page.getByLabel("Your name").fill("Retry Owner");
+      await page.getByLabel("Email", { exact: true }).fill(`retry-${theme}-${width}-${Date.now()}@example.test`);
+      await page.getByLabel("Password", { exact: true }).fill("a-long-retry-browser-password");
+      await page.getByRole("button", { name: "Create account", exact: true }).click();
+      await page.getByRole("button", { name: "New project", exact: true }).click();
+      await page.getByLabel("Project name").fill("Atlas run review");
+      await page.getByRole("button", { name: "Create project", exact: true }).click();
+      await page.getByRole("link", { name: /Atlas run review/ }).click();
+      const projectUrl = page.url();
+      await page.getByRole("button", { name: "Add requirements", exact: true }).click();
+      await page.getByLabel("Project requirements", { exact: true }).fill("Original brief: local state and keyboard accessible ticket assignment.");
+      await page.getByRole("button", { name: "Save requirements", exact: true }).click();
+      await expect(page.getByText("SAVED / REVISION 1", { exact: true })).toBeVisible();
+      await page.getByLabel("What do you want to build?").fill("Build a local ticket assignment interface with clear ownership.");
+      await page.getByRole("button", { name: "Create engineering run" }).click();
+      await expect(page).toHaveURL(/\/workspace\/runs\//);
+      const originalUrl = page.url();
+      await expect(page.locator(".run-context")).toContainText("Original brief: local state");
+      await expect(page.getByRole("button", { name: "Prepare retry" })).toHaveCount(0);
+      await page.getByRole("button", { name: "Cancel run", exact: true }).click();
+      await expect(page.getByText("Cancelled", { exact: true })).toBeVisible();
+      await page.goto(projectUrl);
+      await page.getByRole("button", { name: "Edit requirements", exact: true }).click();
+      await page.getByLabel("Project requirements", { exact: true }).fill("New brief: reporting for future runs only.");
+      await page.getByRole("button", { name: "Save requirements", exact: true }).click();
+      await expect(page.getByText("SAVED / REVISION 2", { exact: true })).toBeVisible();
+      await page.goto(originalUrl);
+      const prepare = page.getByRole("button", { name: "Prepare retry", exact: true });
+      await prepare.click();
+      const intent = page.getByLabel("Intent for the new attempt", { exact: true });
+      await expect(intent).toBeFocused(); await intent.press("Escape"); await expect(prepare).toBeFocused();
+      await prepare.click();
+      await intent.fill("Build a local ticket assignment interface with an explicit empty state.");
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await page.getByRole("button", { name: "Create new attempt", exact: true }).click();
+      await expect(page).not.toHaveURL(originalUrl);
+      await expect(page.getByText("Awaiting executor", { exact: true })).toBeVisible();
+      await expect(page.locator(".run-context")).toContainText("explicit empty state");
+      await expect(page.locator(".run-context")).toContainText("Original brief: local state");
+      await expect(page.locator(".run-context")).not.toContainText("New brief:");
+      await expect(page.locator(".run-context")).toContainText("revision 1");
+      await expect(page.getByRole("link", { name: "Original run", exact: true })).toHaveAttribute("href", new URL(originalUrl).pathname);
+      await expect(page.locator(".stored-artifact")).toHaveCount(3);
+      await expect(page.getByText("RETRY LINEAGE", { exact: true })).toBeVisible();
+      await expect(page.getByText("OWNER APPROVAL", { exact: true })).toHaveCount(0);
+      await expect(page.getByText("ACTUAL CHECK OUTPUT", { exact: true })).toHaveCount(0);
+      await page.reload();
+      await expect(page.locator(".run-context")).toContainText("Original brief: local state");
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.screenshot({ path: `artifacts/retry-${width}-${theme}.png`, fullPage: true });
+      await page.getByRole("link", { name: "Original run", exact: true }).click();
+      await expect(page).toHaveURL(originalUrl);
+      await expect(page.getByText("Cancelled", { exact: true })).toBeVisible();
+      await expect(page.locator(".stored-artifact")).toHaveCount(2);
+      await page.goto(projectUrl);
+      await expect(page.locator(".run-list>li")).toHaveCount(2);
+      expect(errors).toEqual([]);
+    });
+  }
+}

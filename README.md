@@ -1,5 +1,11 @@
 # NEXUS — Autonomous AI Software Engineering & Operations Platform
 
+## NEXYRAL public application
+
+The NEXYRAL implementation is in [`apps/nexyral`](apps/nexyral). Live website: **https://nexyral.online**. It includes the React/TypeScript website, interactive 3D Core, Cloudflare serverless workspace, Firebase accounts, Gemini frontend source generation, and branded six-digit email verification through Resend. See the [application README](apps/nexyral/README.md), [serverless setup](apps/nexyral/docs/FREE_SERVERLESS.md), and [email configuration](apps/nexyral/docs/EMAIL_CODE_SETUP.md). API keys, databases and local build/test artifacts are excluded from Git.
+
+The original NEXUS prototype is described below.
+
 NEXUS is a portfolio-grade prototype of an AI control plane for software engineering and operations.
 
 ## Flagship demo

@@ -1,0 +1,85 @@
+/* Readable semantic sizes shared by both themes. Instrument coordinates remain secondary. */
+:root {
+  --font-body: clamp(16px, 0.2vw + 15px, 18px);
+  --font-action: 15px;
+  --font-label: 11px;
+}
+body {
+  font-size: var(--font-body);
+}
+.desktop-nav,
+.nav-actions,
+.button,
+.watch-button {
+  font-size: var(--font-action);
+}
+.theme-control select {
+  font-size: 12px;
+}
+.hero-copy > p {
+  font-size: clamp(18px, 0.35vw + 16px, 21px);
+  max-width: 490px;
+  line-height: 1.7;
+}
+.hero-note {
+  font-size: 12px;
+  line-height: 1.6;
+}
+.eyebrow,
+.technical,
+.hero-topline,
+.core-model-label {
+  font-size: var(--font-label);
+}
+.core-stage-buttons button {
+  font-size: 11px;
+}
+.core-controls p {
+  font-size: 13px;
+  line-height: 1.65;
+}
+.story-heading > p {
+  font-size: var(--font-body);
+}
+@media (max-width: 1050px) {
+  .desktop-nav {
+    gap: 16px;
+    font-size: 13px;
+  }
+}
+@media (max-width: 700px) {
+  .hero-copy > p {
+    font-size: 18px;
+  }
+  .hero-note {
+    font-size: 12px;
+  }
+  .hero-topline {
+    font-size: 9px;
+    letter-spacing: 0.7px;
+  }
+  .core-model-label {
+    font-size: 10px;
+  }
+  .core-stage-buttons button {
+    font-size: 10px;
+    min-height: 48px;
+  }
+  .core-stage-buttons button span {
+    display: none;
+  }
+  .core-controls p {
+    font-size: 12px;
+  }
+  .hero-bottom {
+    font-size: 9px;
+    letter-spacing: 0.6px;
+  }
+}
+:root { --font-copy: 'Manrope', Arial, sans-serif; --font-display: 'Space Grotesk', 'Manrope', Arial, sans-serif; --font-body: clamp(17px,.25vw + 16px,19px); --font-action: 16px; font-family: var(--font-copy); }
+h1, .story-heading h2, .cta-copy h2 { font-family: var(--font-display); }
+.hero-copy > p { font-size: clamp(19px,.35vw + 17px,23px); }
+.hero-note { font-size: 14px; }.theme-control select { font-size: 13px; }.hero-copy h1 { font-weight: 500; }
+@media(max-width:700px) { .hero-copy > p { font-size: 19px; }.hero-note { font-size: 13px; }.hero-topline { font-size: 10px; } }
+.watch-link { font-size: 15px; line-height: 1.5; }.hero-buttons { flex-wrap: wrap; }
+@media(min-width:701px) and (max-width:1050px) { .desktop-nav { font-size: 14px; } }

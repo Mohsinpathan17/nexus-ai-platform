@@ -1,0 +1,45 @@
+.cloud-account-page { padding-block: 68px 100px; }
+.account-layout { display: grid; grid-template-columns: minmax(0,1fr) minmax(380px,480px); gap: clamp(40px,7vw,112px); align-items: start; max-width: 1200px; margin: auto; }
+.account-story { padding: 30px 0; }
+.account-story h1 { font-family: var(--font-display); font-size: clamp(46px,5.2vw,76px); line-height: 1.05; letter-spacing: -.055em; margin: 28px 0; font-weight: 500; }
+.account-story h1 > span { color: var(--accent); }
+.account-story > p { font-size: 20px; line-height: 1.7; max-width: 420px; }
+.account-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 36px; box-shadow: 0 18px 80px color-mix(in srgb,var(--text) 4%,transparent); }
+.account-panel h2 { font-family: var(--font-display); font-size: 32px; letter-spacing: -.035em; margin: 18px 0 8px; line-height: 1.2; }
+.account-panel .account-subtitle { margin: 0 0 28px; font-size: 16px; }
+.account-panel label { font-size: 16px; font-weight: 500; gap: 10px; margin-bottom: 20px; }
+.account-panel input { background: var(--bg); border-radius: 10px; font-size: 17px; min-height: 54px; }
+.account-panel input::placeholder { color: var(--muted); opacity: .8; }
+.account-google { width: 100%; display: flex; justify-content: center; align-items: center; gap: 14px; min-height: 54px; padding: 14px 16px; border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 10px; font-size: 16px; font-weight: 500; }
+.account-google:hover { border-color: var(--accent); background: var(--accent-soft); }
+.account-google + .account-google { margin-top: 12px; }
+.account-divider { display: flex; gap: 14px; align-items: center; margin: 26px 0; font-size: 13px; color: var(--muted); }
+.account-divider::before,.account-divider::after { content: ''; flex: 1; border-top: 1px solid var(--border); }
+.account-password { position: relative; }
+.account-password input { padding-right: 52px; }
+.account-password button { position: absolute; right: 5px; top: 5px; width: 44px; height: 44px; border: 0; background: transparent; color: var(--muted); display: grid; place-items: center; }
+.account-submit { width: 100%; font-size: 17px; min-height: 54px; justify-content: space-between; }
+.account-panel .account-switch { text-align: center; font-size: 15px; margin: 8px 0 18px; }
+.account-switch a { color: var(--text); font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
+.account-recovery-toggle { display: block; margin: 0 auto; border: 0; background: transparent; color: var(--muted); font-size: 14px; text-decoration: underline; text-underline-offset: 4px; }
+.account-recovery { padding-top: 24px; margin-top: 24px; border-top: 1px solid var(--border); }
+.account-panel .account-terms { margin: 26px 0 0; font-size: 12px; line-height: 1.8; text-align: center; }
+.account-terms a { text-decoration: underline; text-underline-offset: 3px; }
+.account-panel .account-notice { margin: 14px 0; min-height: 12px; font-size: 14px; color: var(--text); }
+.account-principles { list-style: none; margin: 20px 0 0; padding: 0; display: grid; gap: 16px; color: var(--muted); font-size: 16px; }
+.account-principles li { display: flex; align-items: center; gap: 12px; }
+.account-principles svg { color: var(--accent); flex-shrink: 0; }
+.account-orbit { position: relative; width: min(100%,400px); aspect-ratio: 1.7; margin: 28px 0; display: grid; place-items: center; }
+.account-orbit-shell { position: absolute; width: 160px; height: 160px; border: 1px solid var(--border); border-radius: 36px; transform: rotate(45deg); background: radial-gradient(circle,var(--accent-soft),transparent 70%); }
+.account-orbit-ring { position: absolute; width: 85%; height: 60%; border: 1px solid color-mix(in srgb,var(--accent) 35%,var(--border)); border-radius: 50%; transform: rotate(-15deg); }
+.account-orbit-center { position: relative; display: grid; place-items: center; width: 94px; height: 94px; border: 1px solid var(--border); border-radius: 25px; background: var(--surface); color: var(--accent); box-shadow: 0 0 55px var(--accent-soft); }
+.orbit-label { position: absolute; font-family: monospace; letter-spacing: 1px; font-size: 11px; background: var(--bg); padding: 6px 10px; color: var(--muted); }
+.orbit-label.intent { top: 35%; left: 0; }.orbit-label.source { top: 10%; right: 8%; }.orbit-label.review { bottom: 12%; right: 8%; }
+.email-action { padding-block: 64px 100px; min-height: 75vh; }.email-action .account-panel { max-width: 580px; margin: auto; }.email-action h1 { font-family: var(--font-display); font-size: 38px; margin: 20px 0; letter-spacing: -.04em; }.email-action p { color: var(--muted); line-height: 1.8; }.email-action-icon { width: 40px; height: 40px; color: var(--accent); display: block; margin-top: 24px; }.email-action input { width: 100%; padding: 14px; color: var(--text); border: 1px solid var(--border); }.email-action label { display: grid; gap: 12px; margin-block: 20px; }
+@media(max-width:850px) { .account-layout { grid-template-columns: minmax(0,1fr); gap: 32px; max-width: 540px; }.account-story { padding: 0; }.account-story h1 { font-size: 44px; margin-block: 20px; }.account-story > p { font-size: 18px; }.account-orbit,.account-principles { display: none; }.cloud-account-page { padding-top: 36px; }.account-panel { padding: 28px; }.email-action .account-panel { padding: 26px; } }
+@media(max-width:420px) { .account-panel { padding: 24px 20px; }.account-story h1 { font-size: 42px; }.account-layout { gap: 28px; } }
+ .email-code-panel { display: grid; gap: 20px; }
+ .email-code-panel h2 { margin: 10px 0; font-size: clamp(24px, 3vw, 32px); }
+ .email-code-panel form { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+ .email-code-panel label { width: 100%; font-size: 16px; }
+ .email-code-panel input { width: min(100%, 230px); padding: 14px 20px; font-size: 26px; letter-spacing: 8px; }

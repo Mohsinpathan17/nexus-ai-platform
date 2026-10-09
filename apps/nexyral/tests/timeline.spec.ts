@@ -1,0 +1,61 @@
+import { test, expect } from "@playwright/test";
+import { randomUUID } from "node:crypto";
+import type { AddressInfo } from "node:net";
+import { openDatabase } from "../server/database.ts";
+import { createApp } from "../server/app.ts";
+import { createProject, createRun } from "../server/runs.ts";
+for (const theme of ["dark", "light"] as const) for (const width of [375, 1440]) {
+  test(`attempt timeline ${theme} ${width}`, async ({ page }) => {
+    const db = openDatabase(":memory:"); const origins: string[] = [];
+    const server = createApp({ db, origins, staticDir: "dist" });
+    await new Promise<void>(resolve => server.listen(0, "127.0.0.1", resolve));
+    const origin = `http://127.0.0.1:${(server.address() as AddressInfo).port}`; origins.push(origin);
+    const errors: string[] = []; page.on("pageerror", error => errors.push(error.message));
+    page.on("console", message => { if (message.type() === "error") errors.push(message.text()); });
+    try {
+      await page.setViewportSize({ width, height: 950 }); await page.emulateMedia({ reducedMotion: "reduce" });
+      await page.goto(`${origin}/get-started`); await page.selectOption("select", theme);
+      await page.getByLabel("Your name").fill("Timeline Owner");
+      await page.getByLabel("Email", { exact: true }).fill(`timeline-${theme}-${width}@example.test`);
+      await page.getByLabel("Password", { exact: true }).fill("a-long-timeline-browser-password");
+      await page.getByRole("button", { name: "Create account", exact: true }).click();
+      await expect(page).toHaveURL(`${origin}/workspace`);
+      const owner = db.prepare("SELECT id FROM users").get() as { id: string };
+      const project = createProject(db, owner.id, "Atlas attempt timeline");
+      const source = createRun(db, owner.id, project.id, "Build a local counter with an accessible increment button.");
+      db.prepare("UPDATE runs SET status='cancelled' WHERE id=?").run(source.id);
+      const child = createRun(db, owner.id, project.id, "Build a local counter with a clear empty state.", { sourceId: source.id, requestId: randomUUID() }).run;
+      db.prepare("UPDATE runs SET status='failed' WHERE id=?").run(child.id);
+      const latest = createRun(db, owner.id, project.id, "Build the revised counter interface.", { sourceId: child.id, requestId: randomUUID() }).run;
+      await page.goto(`${origin}/workspace/projects/${project.id}`);
+      const timeline = page.getByRole("list", { name: "Engineering attempts" });
+      await expect(timeline.locator("li")).toHaveCount(3);
+      await expect(timeline.locator(".attempt-main").first()).toHaveAttribute("href", `/workspace/runs/${latest.id}`);
+      await page.getByRole("combobox", { name: "Sort runs", exact: true }).selectOption("oldest");
+      await expect(timeline.locator(".attempt-main").first()).toHaveAttribute("href", `/workspace/runs/${source.id}`);
+      await page.getByRole("combobox", { name: "Sort runs", exact: true }).selectOption("newest");
+      await expect(timeline.getByText("No parent recorded", { exact: true })).toHaveCount(1);
+      await expect(timeline.getByRole("link", { name: source.id.slice(0, 8).toUpperCase(), exact: true })).toHaveAttribute("href", `/workspace/runs/${source.id}`);
+      await expect(timeline.getByRole("link", { name: child.id.slice(0, 8).toUpperCase(), exact: true })).toHaveAttribute("href", `/workspace/runs/${child.id}`);
+      await page.getByRole("checkbox", { name: "Retries only" }).check();
+      await expect(timeline.locator("li")).toHaveCount(2);
+      await page.getByRole("combobox", { name: "Run status", exact: true }).selectOption("cancelled");
+      await expect(page.getByRole("heading", { name: "No matching runs." })).toBeVisible();
+      await page.getByRole("button", { name: "Clear run filters" }).click();
+      await expect(page.getByRole("checkbox", { name: "Retries only" })).not.toBeChecked();
+      await expect(timeline.locator("li")).toHaveCount(3);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.screenshot({ path: `artifacts/timeline-${width}-${theme}.png`, fullPage: true });
+      await timeline.getByRole("link", { name: `Review evidence for run ${latest.id.slice(0, 8)}` }).click();
+      await expect(page.locator("#evidence-overview-title")).toBeFocused();
+      await expect(page.locator(".evidence-overview")).toContainText("No verification artifact");
+      await page.getByRole("link", { name: "Project history", exact: true }).click();
+      await timeline.getByRole("link", { name: `Review context for run ${source.id.slice(0, 8)}` }).click();
+      await expect(page.locator("#run-context-title")).toBeFocused();
+      await expect(page.locator(".run-context")).toContainText(source.intent);
+      await expect(page.getByText("Cancelled", { exact: true })).toBeVisible();
+      expect(errors).toEqual([]);
+    } finally { server.closeAllConnections(); await new Promise<void>(resolve => server.close(() => resolve())); db.close(); }
+  });
+}

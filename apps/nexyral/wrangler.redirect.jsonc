@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "nexyral-www-redirect",
+  "main": "cloudflare/www-redirect.ts",
+  "compatibility_date": "2026-10-09",
+  "workers_dev": false,
+  "routes": [
+    {
+      "pattern": "www.nexyral.online",
+      "custom_domain": true,
+      "zone_name": "nexyral.online"
+    }
+  ],
+  "observability": {
+    "enabled": false
+  },
+  "preview_urls": false
+}

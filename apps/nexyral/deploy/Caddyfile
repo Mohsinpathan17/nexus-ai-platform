@@ -1,0 +1,16 @@
+# Two distinct DNS hostnames, both pointing at the backend host.
+# Access logging is intentionally omitted: preview grant paths are sensitive.
+{$NEXYRAL_APP_HOST} {
+	header Strict-Transport-Security "max-age=31536000"
+	reverse_proxy 127.0.0.1:8787 {
+		flush_interval -1
+		header_up X-Forwarded-For {http.request.remote.host}
+		header_up Host {http.request.hostport}
+	}
+}
+{$NEXYRAL_PREVIEW_HOSTNAME} {
+	header Strict-Transport-Security "max-age=31536000"
+	reverse_proxy 127.0.0.2:8788 {
+		header_up Host {http.request.hostport}
+	}
+}

@@ -1,0 +1,23 @@
+[Unit]
+Description=NEXYRAL explicitly approved local engineering worker
+After=network-online.target nexyral.service ollama.service docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=nexyral
+Group=nexyral
+WorkingDirectory=/opt/nexyral/app
+EnvironmentFile=/etc/nexyral/backend.env
+ExecStart=/usr/bin/env node server-dist/server/worker-entry.js
+Restart=no
+KillMode=control-group
+TimeoutStopSec=10
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/opt/nexyral/app/.data
+
+[Install]
+WantedBy=multi-user.target
