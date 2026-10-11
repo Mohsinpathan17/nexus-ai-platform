@@ -30,6 +30,7 @@ export default function NexyralCore() {
   const reduced = usePrefersReducedMotion();
   const { resolved } = useTheme();
   const [active, setActive] = useState(0);
+  const [expanded,setExpanded]=useState(false);
   const [paused, setPaused] = useState(false);
   const [ready, setReady] = useState(false);
   const confirmReady = useCallback(() => setReady(true), []);
@@ -82,7 +83,7 @@ export default function NexyralCore() {
               invalidate();
             }}
           >
-            <NexyralScene reduced={Boolean(reduced) || paused} light={resolved === "light"} active={active} onReady={confirmReady} />
+            <NexyralScene reduced={Boolean(reduced) || paused} light={resolved === "light"} active={active} expanded={expanded} onReady={confirmReady} />
           </Canvas>
         </CoreBoundary>
       ) : (
@@ -99,6 +100,7 @@ export default function NexyralCore() {
       </div>
       <div className="core-controls">
         <div className="core-motion-control"><span className="technical core-model-label">INTERACTIVE SYSTEM MODEL</span>{supported && <button type="button" disabled={Boolean(reduced)} onClick={() => setPaused(value => !value)} aria-label={paused ? "Resume Core rotation" : "Pause Core rotation"}>{reduced ? "Reduced motion" : paused ? "Resume rotation" : "Pause rotation"}</button>}</div>
+        <div className="core-inspection"><button type="button" aria-label="Inspect Core layers" aria-pressed={expanded} onClick={()=>setExpanded(value=>!value)}>{expanded?'Reassemble the Core':'Inspect the layers'}<span aria-hidden="true">{expanded?'−':'+'}</span></button><span>DESIGN MODEL · NOT A LIVE RUN</span></div>
         <div className="core-stage-buttons" role="group" aria-label="Explore Core stages">
           {stages.map((stage, index) => <button key={stage} type="button" aria-pressed={active === index} onClick={() => setActive(index)}><span>0{index + 1}</span>{stage}</button>)}
         </div>

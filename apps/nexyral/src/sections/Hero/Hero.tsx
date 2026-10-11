@@ -30,7 +30,7 @@ export default function Hero() {
           </h1>
           <p>
             Tell NEXYRAL what you want to make. It creates the screens and code
-            for a web app. Try it in your browser, refine it, and keep the source.
+            for a web app. Try it in your browser, ask for changes in plain English, and keep the source.
           </p>
           <div className="hero-buttons">
             <a className="button" href="#start">Describe your app <ArrowUpRight size={17}/></a>

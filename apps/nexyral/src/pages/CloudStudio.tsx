@@ -21,6 +21,7 @@ import { useLocation } from "react-router-dom";
 import { cloudAuth } from "../lib/cloud-auth";
 import CloudAccount from "../components/account/CloudAccount";
 import EmailCodeVerification from '../components/account/EmailCodeVerification';
+import type { SavedVersion } from "../components/workspace/RefinementPanel";
 import SourceOutput from "../components/workspace/SourceOutput";
 interface Source {
   app: string;
@@ -201,6 +202,22 @@ export default function CloudStudio() {
       setProjects(current => current.map(item => item.id === id ? project : item));
     } catch { /* The visible error remains; refresh can recover persisted state. */ }
   }
+  async function reviseSource(operation: "refine" | "restore", body: Record<string,string>): Promise<Source> {
+    if (!selected) throw new Error("Open a saved project first.");
+    const id=selected.id;
+    setBusy(true);setNotice(operation==="refine" ? "Gemini is updating your saved app. Your previous source is protected." : "Restoring your saved version…");
+    try {
+      const saved=await request<{source:Source;updated_at:string}>(`/projects/${id}/${operation}`,{...body,updatedAt:selected.updated_at});
+      setSelected(current=>current?.id===id?{...current,source:saved.source,updated_at:saved.updated_at,status:"generated",error:undefined}:current);
+      setNotice(operation==="refine"?"AI change saved. Review it in the preview.":"Saved version restored.");
+      return saved.source;
+    } catch(error) {setNotice(message(error));throw error;}
+    finally {
+      try {const latest=await request<Project>(`/projects/${id}`);setSelected(current=>current?.id===id?latest:current);setProjects(current=>current.map(item=>item.id===id?latest:item));}
+      catch {/* A later reload can recover the persisted result. */}
+      setBusy(false);
+    }
+  }
   if (!cloudAuth)
     return (
       <section className="cloud-studio container">
@@ -287,6 +304,7 @@ export default function CloudStudio() {
               ))}
             </aside>
             <div className="cloud-editor">
+              <details className="new-project-disclosure" open={!selected?.source}><summary>{selected?.source ? "Start another app" : "Describe your next app"}</summary>
               <form onSubmit={save}>
                 <label htmlFor="cloud-intent">What should we build?</label>
                 <textarea
@@ -305,7 +323,7 @@ export default function CloudStudio() {
                   Save project
                   <ArrowUpRight size={18} />
                 </button>
-              </form>
+              </form></details>
               {selected && (
                 <div className="cloud-output">
                   <h2>{selected.intent}</h2>
@@ -314,6 +332,7 @@ export default function CloudStudio() {
                     Frontend source generation · React + TypeScript · No backend
                     or deployment implied.
                   </p>
+                  {selected.status === "generating" && selected.source && !busy && <p className="cloud-generation-state" role="status">An AI change is in progress. Your last saved app remains available while it completes.</p>}
                   {selected.error && <p className="cloud-run-error" role="alert">{selected.error}</p>}
                   {!selected.source ? (
                     <button
@@ -325,7 +344,11 @@ export default function CloudStudio() {
                       {phase === "generating" ? "Generating source…" : awaitingGeneration ? "Generation in progress" : selected.status === "generating" ? "Retry interrupted generation" : selected.status === "failed" ? "Retry generation" : "Generate with Gemini"}
                     </button>
                   ) : (
-                    <SourceOutput key={selected.id} source={selected.source} draftKey={`nexyral-source-draft:${user.uid}:${selected.id}`} onDirtyChange={setSourceDirty} onSave={async source => {
+                    <SourceOutput key={selected.id} source={selected.source} draftKey={`nexyral-source-draft:${user.uid}:${selected.id}`} onDirtyChange={setSourceDirty} operations={awaitingGeneration ? undefined : {
+                      revise: instruction => reviseSource("refine",{instruction}),
+                      history: async () => (await request<{versions:SavedVersion[]}>(`/projects/${selected.id}/history`)).versions,
+                      restore: versionId => reviseSource("restore",{versionId}),
+                    }} onSave={async source => {
                       const id = selected.id;
                       const saved = await request<{source: Source; updated_at: string}>(`/projects/${id}/source`, {source, updatedAt: selected.updated_at});
                       setSelected(current => current?.id === id ? {...current, source: saved.source, updated_at: saved.updated_at} : current);

@@ -1,5 +1,6 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Check, Copy, Download, FileCode2, PackageCheck, Eye, Code2, Save, Undo2 } from 'lucide-react';
+import RefinementPanel, { type SourceOperations } from './RefinementPanel';
 import { exportProject, type ProjectSource } from '../../lib/project-export';
 const ReactPreview = lazy(() => import('../preview/ReactPreview'));
 function download(name: string, body: Blob) {
@@ -13,6 +14,7 @@ interface Props {
   onDirtyChange?: (dirty: boolean) => void;
   draftKey?: string;
   sourceLabel?: string;
+  operations?: SourceOperations;
 }
 function restoredDraft(source: ProjectSource, key?: string): ProjectSource {
   if (!key) return source;
@@ -22,7 +24,7 @@ function restoredDraft(source: ProjectSource, key?: string): ProjectSource {
   } catch { /* Storage failure never prevents editing or exporting. */ }
   return source;
 }
-export default function SourceOutput({ source, onSave, onDirtyChange, draftKey, sourceLabel = 'GENERATED / READY FOR REVIEW' }: Props) {
+export default function SourceOutput({ source, onSave, onDirtyChange, draftKey, sourceLabel = 'GENERATED / READY FOR REVIEW', operations }: Props) {
   const [draft, setDraft] = useState(() => restoredDraft(source, draftKey));
   const [preview, setPreview] = useState(source);
   const [view, setView] = useState<'preview' | 'code'>('preview');
@@ -30,6 +32,16 @@ export default function SourceOutput({ source, onSave, onDirtyChange, draftKey, 
   const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState(() => restoredDraft(source, draftKey) !== source ? 'Unsaved edits restored from this browser tab. Save or download to keep them.' : '');
+  const previousSource = useRef(source);
+  useEffect(() => {
+    const previous=previousSource.current;previousSource.current=source;
+    if(previous.app===source.app&&previous.css===source.css)return;
+    // Polling can deliver a completed request after a reload. Adopt it only if the local editor was unchanged.
+    queueMicrotask(()=>{
+      setDraft(current=>current.app===previous.app&&current.css===previous.css?source:current);
+      setPreview(current=>current.app===previous.app&&current.css===previous.css?source:current);
+    });
+  },[source]);
   const dirty = draft.app !== source.app || draft.css !== source.css;
   const previewStale = preview.app !== draft.app || preview.css !== draft.css;
   function remember(next: ProjectSource) {
@@ -62,6 +74,7 @@ export default function SourceOutput({ source, onSave, onDirtyChange, draftKey, 
       <button aria-pressed={view === 'preview'} onClick={() => setView('preview')}><Eye size={17} />Preview</button>
       <button aria-pressed={view === 'code'} onClick={() => setView('code')}><Code2 size={17} />Edit code</button>
     </div><span className="source-save-state">{dirty ? 'Unsaved edits' : onSave ? 'Saved source' : 'Starter source'}</span></div>
+    <div className={`source-work-area ${operations ? 'with-refinement' : ''}`}>
     {view === 'preview' ? <>
       {previewStale && <div className="preview-update"><span>Your code has changed.</span><button className="cloud-action secondary" onClick={() => setPreview({ ...draft })}>Update preview</button></div>}
       <Suspense fallback={<p role="status">Loading the preview workspace…</p>}><ReactPreview source={preview} /></Suspense>
@@ -80,6 +93,8 @@ export default function SourceOutput({ source, onSave, onDirtyChange, draftKey, 
         <button className="cloud-action secondary" disabled={!dirty || saving} onClick={() => { if (window.confirm('Discard these unsaved edits and restore the saved source?')) { forgetDraft(); setDraft(source); setPreview(source); setNotice('Saved source restored.'); } }}><Undo2 size={17} />Discard edits</button>
       </div>
     </div>}
+    {operations && <RefinementPanel operations={operations} dirty={dirty} onBusy={setSaving} onApplied={next => {forgetDraft();setDraft(next);setPreview(next);setView('preview');setNotice('');}}/>}
+    </div>
     <p className="cloud-evidence">Export includes the files currently in the editor. Build and tests not run · Review before production use.</p>
     <p className="cloud-copy-notice" role="status">{notice}</p>
   </div>;

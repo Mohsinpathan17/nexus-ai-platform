@@ -2,18 +2,22 @@ import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import type { Group } from "three";
 import { corePalettes } from "./core.config";
-export default function CoreEngine({ reduced, light, onReady }: { reduced: boolean; light: boolean; onReady: () => void }) {
+export default function CoreEngine({ reduced, light, expanded, active, onReady }: { reduced: boolean; light: boolean; expanded: boolean; active: number; onReady: () => void }) {
   const ref = useRef<Group>(null);
   const rendered = useRef(false);
+  const shell = useRef<(Group | null)[]>([]);
+  const layers = useRef<(Group | null)[]>([]);
   const confirmRender = () => { if (!rendered.current) { rendered.current = true; onReady(); } };
   const palette = corePalettes[light ? "light" : "dark"];
   useFrame((_, delta) => {
-    if (ref.current && !reduced) ref.current.rotation.y += Math.min(delta, 0.05) * 0.22;
+    if (ref.current && !reduced) ref.current.rotation.y += Math.min(delta, 0.05) * 0.18;
+    shell.current.forEach(part => {if(part) part.position.z += ((expanded ? 1.4 : .96)-part.position.z)*(reduced?1:Math.min(delta*5,1));});
+    layers.current.forEach((part,index) => {if(part) part.position.y += ((index-3)*(expanded ? 0.26 : 0.19)-part.position.y)*(reduced?1:Math.min(delta*5,1));});
   });
   return (
     <group ref={ref} rotation={[0.22, 0.3, -0.12]}>
       {Array.from({ length: 7 }, (_, index) => (
-        <group key={index} position={[0, (index - 3) * 0.19, 0]} rotation={[0, index * 0.12, 0]}>
+        <group ref={part => {layers.current[index]=part;}} key={index} position={[0, (index - 3) * 0.19, 0]} rotation={[0, index * 0.12, 0]}>
           <mesh onAfterRender={index === 0 ? confirmRender : undefined}>
             <cylinderGeometry args={[0.72, 0.72, 0.12, 6]} />
             <meshStandardMaterial color={palette.shell} metalness={0.32} roughness={0.3} />
@@ -27,16 +31,23 @@ export default function CoreEngine({ reduced, light, onReady }: { reduced: boole
       {Array.from({ length: 6 }, (_, index) => {
         const angle = index * Math.PI / 3;
         return <group key={index} rotation={[0, angle, 0]}>
-          <mesh position={[0, 0, 0.96]} rotation={[0.12, 0, 0]}>
+          <group ref={part => {shell.current[index]=part;}} position={[0,0,.96]}><mesh rotation={[0.12, 0, 0]}>
             <boxGeometry args={[0.28, 1.65, 0.065]} />
             <meshStandardMaterial color={palette.shell} metalness={0.42} roughness={0.26} />
           </mesh>
-          <mesh position={[0, 0, 1.003]}>
+          <mesh position={[0, 0, .043]}>
             <boxGeometry args={[0.018, 1.1, 0.008]} />
-            <meshBasicMaterial color={palette.accent} />
-          </mesh>
+            <meshBasicMaterial color={index === active ? palette.energy : palette.accent} />
+          </mesh></group>
         </group>;
       })}
+      <mesh position={[0,-1.18,0]}>
+        <cylinderGeometry args={[1.06,1.18,.09,6]}/>
+        <meshStandardMaterial color={palette.shell} metalness={.5} roughness={.32}/>
+      </mesh>
+      <mesh position={[0,-1.125,0]} rotation={[Math.PI/2,0,0]}>
+        <torusGeometry args={[.96,.012,5,6]}/><meshBasicMaterial color={palette.accent}/>
+      </mesh>
       <mesh rotation={[0.4, 0.3, 0.2]}>
         <icosahedronGeometry args={[1.32, 0]} />
         <meshBasicMaterial color={palette.ring} wireframe transparent opacity={0.19} />

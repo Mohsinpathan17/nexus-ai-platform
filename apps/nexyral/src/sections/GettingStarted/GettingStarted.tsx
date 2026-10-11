@@ -21,7 +21,7 @@ export default function GettingStarted() {
       <ol className="plain-steps">{[
         {icon:MessageSquare,title:'Describe it',description:'Use your own words. A few sentences are enough.'},
         {icon:Sparkles,title:'Generate it',description:'After signing in, save your project and ask AI to create the code.'},
-        {icon:Download,title:'Make it yours',description:'Try your app, edit the code, and download the project.'},
+        {icon:Download,title:'Make it yours',description:'Try your app, ask AI for changes, and download the project.'},
       ].map(({icon:Icon,title,description},index)=><li key={title}><span className="plain-step-icon"><Icon size={19}/></span><div><strong><small>0{index+1}</small>{title}</strong><p>{description}</p></div></li>)}</ol>
     </div>
     <form className="idea-composer" onSubmit={submit}>

@@ -67,6 +67,7 @@ function database() {
   );
   db.exec(readFileSync(new URL('./migrations/0002_email_codes.sql',import.meta.url),'utf8'));
   db.exec(readFileSync(new URL("./migrations/0003_public_examples.sql",import.meta.url),"utf8"));
+  db.exec(readFileSync(new URL('./migrations/0004_project_versions.sql',import.meta.url),'utf8'));
   const adapter = {
     async batch(statements: {run:()=>Promise<unknown>}[]) {
       db.exec('BEGIN');
@@ -425,4 +426,51 @@ test('source edits persist with ownership, size validation and optimistic confli
     const read=await worker.fetch(request(`/api/cloud/projects/${id}`,jwt),env);assert.deepEqual((await read.json() as {source:typeof source}).source,source);
     assert.equal(db.prepare('SELECT count(*) as count FROM generation_usage').get()?.count,0);
   } finally {db.close();}
+});
+
+test('AI revisions use existing source, save recoverable versions, and restore without another inference',async()=>{
+ const {db,binding}=database();const jwt=await token();await authenticate(request('/',jwt),'test-project',jwksFetch);
+ const env={DB:binding,FIREBASE_PROJECT_ID:'test-project',GEMINI_API_KEY:'fixture-key',GEMINI_MODEL:'fixture-model',DAILY_GENERATION_LIMIT:'10'} as Env;
+ const id='55555555-5555-4555-8555-555555555555';const before={app:'export default function App(){return <main>Before revision</main>}',css:'main{color:blue}'};
+ db.prepare("INSERT INTO projects(id,owner_id,intent,status,source,created_at,updated_at) VALUES(?,?,?,'generated',?,?,?)").run(id,'owner-a','Build a support interface',JSON.stringify(before),'2026-01-01T00:00:00.000Z','2026-01-01T00:00:00.000Z');
+ const original=globalThis.fetch;let calls=0;
+ globalThis.fetch=async(_url,init)=>{calls++;const body=JSON.parse(String(init?.body));assert.match(body.contents[0].parts[0].text,/Before revision/);assert.match(body.contents[0].parts[0].text,/Use a green palette/);return Response.json({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({...before,css:'main{color:green}'})}]}}]});};
+ try {
+  const payload={instruction:'Use a green palette',updatedAt:'2026-01-01T00:00:00.000Z'};
+  assert.equal((await worker.fetch(request(`/api/cloud/projects/${id}/refine`,await token({sub:'other'}),payload),env)).status,404);
+  assert.equal((await worker.fetch(request(`/api/cloud/projects/${id}/refine`,await token({email_verified:false}),payload),env)).status,403);
+  assert.equal((await worker.fetch(request(`/api/cloud/projects/${id}/refine`,jwt,{...payload,instruction:'x'}),env)).status,400);
+  const response=await worker.fetch(request(`/api/cloud/projects/${id}/refine`,jwt,payload),env);assert.equal(response.status,200);const saved=await response.json() as {source:typeof before;updated_at:string};assert.equal(saved.source.css,'main{color:green}');
+  assert.equal((await worker.fetch(request(`/api/cloud/projects/${id}/refine`,jwt,payload),env)).status,409);
+  const history=await (await worker.fetch(request(`/api/cloud/projects/${id}/history`,jwt),env)).json() as {versions:{id:string;label:string}[]};assert.equal(history.versions.length,1);assert.match(history.versions[0].label,/Use a green palette/);
+  assert.equal((await worker.fetch(request(`/api/cloud/projects/${id}/restore`,await token({sub:'other'}),{versionId:history.versions[0].id,updatedAt:saved.updated_at}),env)).status,404);
+  const restored=await worker.fetch(request(`/api/cloud/projects/${id}/restore`,jwt,{versionId:history.versions[0].id,updatedAt:saved.updated_at}),env);assert.equal(restored.status,200);assert.deepEqual((await restored.json() as {source:typeof before}).source,before);assert.equal(calls,1);assert.equal(db.prepare('SELECT count FROM generation_usage').get()?.count,1);
+  assert.equal(db.prepare('SELECT count(*) as count FROM project_versions').get()?.count,2);
+ }finally{globalThis.fetch=original;db.close();}
+});
+test('failed AI changes keep the last app intact and release the lease; history is bounded',async()=>{
+ const {db,binding}=database();const jwt=await token();await authenticate(request('/',jwt),'test-project',jwksFetch);
+ const env={DB:binding,FIREBASE_PROJECT_ID:'test-project',GEMINI_API_KEY:'fixture-key',GEMINI_MODEL:'fixture-model',DAILY_GENERATION_LIMIT:'1'} as Env;
+ const id='66666666-6666-4666-8666-666666666666';const source={app:'export default function App(){return <main>Keep this app</main>}',css:''};
+ db.prepare("INSERT INTO projects(id,owner_id,intent,status,source,created_at,updated_at) VALUES(?,?,?,'generated',?,?,?)").run(id,'owner-a','Keep my saved app safe',JSON.stringify(source),'2026-01-01T00:00:00.000Z','2026-01-01T00:00:00.000Z');
+ const original=globalThis.fetch;let calls=0;globalThis.fetch=async()=>{calls++;return new Response('',{status:429});};
+ try{
+  const change=()=>request(`/api/cloud/projects/${id}/refine`,jwt,{instruction:'Improve mobile layout',updatedAt:db.prepare('SELECT updated_at FROM projects WHERE id=?').get(id)!.updated_at});
+  assert.equal((await worker.fetch(change(),env)).status,502);let row=db.prepare('SELECT * FROM projects WHERE id=?').get(id)!;assert.equal(row.status,'generated');assert.deepEqual(JSON.parse(String(row.source)),source);
+  assert.equal((await worker.fetch(change(),env)).status,429);row=db.prepare('SELECT * FROM projects WHERE id=?').get(id)!;assert.equal(row.status,'generated');assert.deepEqual(JSON.parse(String(row.source)),source);assert.equal(calls,1);
+  for(let i=0;i<12;i++){const latest=String(db.prepare('SELECT updated_at FROM projects WHERE id=?').get(id)!.updated_at);const edited={...source,css:`main{padding:${i}px}`};assert.equal((await worker.fetch(request(`/api/cloud/projects/${id}/source`,jwt,{source:edited,updatedAt:latest}),env)).status,200);}
+  assert.equal(db.prepare('SELECT count(*) as count FROM project_versions').get()?.count,10);
+ }finally{globalThis.fetch=original;db.close();}
+});
+test('an in-flight AI revision cannot duplicate inference or overwrite a newer lease',async()=>{
+ const {db,binding}=database();const jwt=await token();await authenticate(request('/',jwt),'test-project',jwksFetch);
+ const env={DB:binding,FIREBASE_PROJECT_ID:'test-project',GEMINI_API_KEY:'fixture-key',GEMINI_MODEL:'fixture-model',DAILY_GENERATION_LIMIT:'10'} as Env;
+ const id='77777777-7777-4777-8777-777777777777';const source={app:'export default function App(){return <main>Saved app</main>}',css:''};const now=new Date().toISOString();
+ db.prepare("INSERT INTO projects(id,owner_id,intent,status,source,created_at,updated_at) VALUES(?,?,?,'generating',?,?,?)").run(id,'owner-a','Build a saved app',JSON.stringify(source),now,now);
+ const original=globalThis.fetch;let calls=0;globalThis.fetch=async()=>{calls++;db.prepare('UPDATE projects SET updated_at=? WHERE id=?').run('2099-01-01T00:00:00.000Z',id);return Response.json({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({...source,css:'main{color:red}'})}]}}]});};
+ try{
+  assert.equal((await worker.fetch(request(`/api/cloud/projects/${id}/refine`,jwt,{instruction:'Change color',updatedAt:now}),env)).status,409);assert.equal(calls,0);
+  const stale='2026-01-01T00:00:00.000Z';db.prepare('UPDATE projects SET updated_at=? WHERE id=?').run(stale,id);
+  assert.equal((await worker.fetch(request(`/api/cloud/projects/${id}/refine`,jwt,{instruction:'Change color',updatedAt:stale}),env)).status,409);assert.equal(calls,1);assert.deepEqual(JSON.parse(String(db.prepare('SELECT source FROM projects WHERE id=?').get(id)!.source)),source);assert.equal(db.prepare('SELECT count(*) as count FROM project_versions').get()?.count,0);
+ }finally{globalThis.fetch=original;db.close();}
 });

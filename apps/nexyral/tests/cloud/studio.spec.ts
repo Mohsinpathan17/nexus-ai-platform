@@ -1,10 +1,11 @@
 import { test, expect, type Page } from '@playwright/test';
-async function fixtures(page: Page, initiallyVerified = true, sourceConflict = false) {
+async function fixtures(page: Page, initiallyVerified = true, sourceConflict = false, refineFailure = false) {
   let verified = initiallyVerified;
   const now = Math.floor(Date.now()/1000);
   const token = `${Buffer.from(JSON.stringify({alg:'none'})).toString('base64url')}.${Buffer.from(JSON.stringify({sub:'fixture-user',user_id:'fixture-user',aud:'nexyral',iss:'https://securetoken.google.com/nexyral',iat:now,exp:now+3600,email:'builder@example.invalid',email_verified:initiallyVerified,firebase:{sign_in_provider:'password'}})).toString('base64url')}.fixture`;
   const project = {id:'22222222-2222-4222-8222-222222222222',intent:'Build an accessible support interface',status:'draft',updated_at:'2026-01-01T00:00:00.000Z',source:null as null|{app:string;css:string},error:null as null|string};
-  let fail = true;
+  let fail = true; let revisionFailed=false; let versionCounter=0;
+  const versions: {id:string;label:string;created_at:string;source:{app:string;css:string}}[]=[];
   const emailRequests: string[] = [];
   await page.route('**/identitytoolkit.googleapis.com/**', async route => {
     const url = route.request().url();
@@ -17,6 +18,13 @@ async function fixtures(page: Page, initiallyVerified = true, sourceConflict = f
     expect(route.request().headers().authorization).toMatch(/^Bearer /);
     const url = new URL(route.request().url());
     if(url.pathname.includes('/verification/')){if(url.pathname.endsWith('/send'))emailRequests.push('EMAIL_CODE');if(url.pathname.endsWith('/confirm')){if(route.request().postDataJSON().code!=='123456'){await route.fulfill({status:400,json:{error:'That code did not match.'}});return;}verified=true;}await route.fulfill({json:{verified,sent:true}});return;}
+    if (url.pathname.endsWith('/history')) {await route.fulfill({json:{versions:versions.map(({source:_source,...version})=>version)}});return;}
+    if (url.pathname.endsWith('/refine') || url.pathname.endsWith('/restore')) {
+      const payload=route.request().postDataJSON();expect(payload.updatedAt).toBe(project.updated_at);
+      if(refineFailure&&!revisionFailed&&url.pathname.endsWith('/refine')){revisionFailed=true;project.error='Provider unavailable. Your previous app is safe.';project.updated_at=new Date(Date.parse(project.updated_at)+1).toISOString();await route.fulfill({status:502,json:{error:project.error}});return;}
+      const previous=project.source!;const target=url.pathname.endsWith('/restore')?versions.find(item=>item.id===payload.versionId)!.source:{app:'export default function App(){return <main><h1>A clearer support app</h1><button>Search tickets</button></main>}',css:'main{padding:24px;color:navy}'};
+      versions.unshift({id:`version-${++versionCounter}`,label:url.pathname.endsWith('/restore')?'Before restoring a version':'Before AI change',created_at:project.updated_at,source:previous});project.source=target;project.error=null;project.updated_at=new Date(Date.parse(project.updated_at)+1).toISOString();await route.fulfill({json:{source:project.source,updated_at:project.updated_at}});return;
+    }
     if (url.pathname.endsWith('/source')) {
       const payload=route.request().postDataJSON();
       if(sourceConflict || payload.updatedAt!==project.updated_at){await route.fulfill({status:409,json:{error:'A newer version exists. Download your edits before reopening the project.'}});return;}
@@ -161,4 +169,11 @@ for(const conflict of [false,true])test(`workspace source editing ${conflict?'pr
  await page.getByRole('button',{name:'Edit code',exact:true}).click();const code='export default function App(){return <main>My persisted edit</main>}';await page.getByLabel('Edit App.tsx').fill(code);await page.getByRole('button',{name:'Save changes',exact:true}).click();
  if(conflict){await expect(page.locator('.cloud-copy-notice')).toContainText('A newer version exists');await expect(page.getByLabel('Edit App.tsx')).toHaveValue(code);await expect(page.locator('.source-save-state')).toHaveText('Unsaved edits');}
  else{await expect(page.locator('.cloud-copy-notice')).toHaveText('Changes saved to your project.');await expect(page.locator('.source-save-state')).toHaveText('Saved source');await page.getByRole('button',{name:'Sign out',exact:true}).click();await page.locator('input[name=email]').fill('builder@example.invalid');await page.locator('input[name=password]').fill('password8');await page.getByRole('button',{name:'Sign in',exact:true}).click();await page.getByLabel('What should we build?').fill('Build an accessible support interface');await page.getByRole('button',{name:'Save project'}).click();await page.getByRole('button',{name:'Edit code',exact:true}).click();await expect(page.getByLabel('Edit App.tsx')).toHaveValue(code);}
+});
+
+for(const width of [375,1440])test(`AI changes at ${width}px preserve failed requests, update the preview and restore versions`,async({page})=>{
+ await page.setViewportSize({width,height:950});await fixtures(page,true,false,true);await page.goto('/login');await page.locator('input[name=email]').fill('builder@example.invalid');await page.locator('input[name=password]').fill('password8');await page.getByRole('button',{name:'Sign in',exact:true}).click();await page.getByLabel('What should we build?').fill('Build an accessible support interface');await page.getByRole('button',{name:'Save project'}).click();await page.getByRole('button',{name:'Generate with Gemini'}).click();await page.getByRole('button',{name:'Retry generation'}).click();
+ await page.getByRole('button',{name:'Run preview',exact:true}).click();await expect(page.frameLocator('iframe').getByText('Fixture support')).toBeVisible();await page.getByRole('button',{name:'Improve mobile layout',exact:false}).click();await page.getByRole('button',{name:'Apply AI change',exact:true}).click();await expect(page.locator('.refinement-notice')).toContainText('Provider unavailable');await expect(page.frameLocator('iframe').getByText('Fixture support')).toBeVisible();
+ await page.getByRole('button',{name:'Apply AI change',exact:true}).click();await expect(page.locator('.refinement-notice')).toContainText('AI change saved');await expect(page.frameLocator('iframe').getByRole('heading',{name:'A clearer support app'})).toBeVisible();await page.getByRole('button',{name:'Saved versions',exact:true}).click();await expect(page.getByLabel('Restore a previous version')).toBeVisible();page.once('dialog',dialog=>dialog.accept());await page.getByRole('button',{name:'Restore version',exact:true}).click();await expect(page.locator('.refinement-notice')).toContainText('Saved version restored');await expect(page.frameLocator('iframe').getByText('Fixture support')).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:`artifacts/refinement-${width}.png`,fullPage:true});
+ await page.getByRole('button',{name:'Edit code',exact:true}).click();await page.getByLabel('Edit App.tsx').fill('export default function App(){return <main>Unsaved change</main>}');await expect(page.getByRole('button',{name:'Apply AI change',exact:true})).toBeDisabled();
 });

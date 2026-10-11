@@ -1,6 +1,7 @@
+import { commitSource, revisionRequest } from "./project-revisions.ts";
 import { publicExampleRequest } from "./public-examples.ts";
 import { authenticate } from "./auth.ts";
-import { generate, validateSource } from "./gemini.ts";
+import { generate, validateSource, type GeneratedSource } from "./gemini.ts";
 import { addressVerified, emailCodeRequest } from './email-codes.ts';
 export interface Env {
   ASSETS: Fetcher;
@@ -123,7 +124,7 @@ export default {
         return json({ id }, 201);
       }
       const match = url.pathname.match(
-        /^\/api\/cloud\/projects\/([a-f0-9-]{36})(\/(?:generate|source))?$/,
+        /^\/api\/cloud\/projects\/([a-f0-9-]{36})(\/(?:generate|source|refine|history|restore))?$/,
       );
       if (!match) return json({ error: "Not found" }, 404);
       const project = await env.DB.prepare(
@@ -144,10 +145,16 @@ export default {
           source: project.source ? JSON.parse(project.source) : null,
           verification: "not_run",
         });
+      if (["/refine","/history","/restore"].includes(match[2])) {
+        let raw = "";
+        try { if (request.method === "POST") raw = await readBody(request); }
+        catch { return json({error:"Request too large"},413); }
+        return await revisionRequest(request,env,user,project,raw);
+      }
       if (match[2] === "/source" && request.method === "POST") {
         if (!request.headers.get("Content-Type")?.startsWith("application/json")) return json({ error: "JSON required" }, 415);
         let body: { source?: unknown; updatedAt?: unknown };
-        let source;
+        let source: GeneratedSource;
         try {
           body = JSON.parse(await readBody(request, 120000));
           source = validateSource(body?.source);
@@ -156,11 +163,9 @@ export default {
         }
         if (project.status !== "generated" || !project.source) return json({ error: "Generate the project before editing its source" }, 409);
         if (body.updatedAt !== project.updated_at) return json({ error: "A newer version exists. Download your edits before reopening the project; your changes have not been overwritten." }, 409);
-        const updatedAt = new Date(Math.max(Date.now(), Date.parse(project.updated_at) + 1)).toISOString();
-        const saved = await env.DB.prepare("UPDATE projects SET source=?,updated_at=? WHERE id=? AND owner_id=? AND status='generated' AND updated_at=?")
-          .bind(JSON.stringify(source), updatedAt, project.id, user.sub, project.updated_at).run();
-        if (!saved.meta.changes) return json({ error: "A newer version exists. Download your edits before reopening the project." }, 409);
-        return json({ source, updated_at: updatedAt, verification: "not_run" });
+        const saved = await commitSource(env,user.sub,project,source,project.updated_at,'generated','Before manual source edit');
+        if (!saved) return json({error:'A newer version exists. Download your edits before reopening the project.'},409);
+        return json(saved);
       }
       if (match[2] === "/generate" && request.method === "POST") {
         if (!(await addressVerified(env,user)))
@@ -168,6 +173,7 @@ export default {
             { error: "Verify your email before generating software" },
             403,
           );
+        if (project.source) return json({error:"Use AI changes to revise an existing app"},409);
         if (!env.GEMINI_API_KEY || !env.GEMINI_MODEL)
           return json({ error: "AI provider is not configured" }, 503);
         const limit = Number(env.DAILY_GENERATION_LIMIT);

@@ -45,6 +45,7 @@ test('mobile Core rotates, pauses, and respects reduced motion', async ({ page }
   expect(paused.equals(await canvas.screenshot())).toBe(true);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await expect(page.locator('.core-motion-control button')).toBeDisabled();
+  const inspect=page.getByRole('button',{name:'Inspect Core layers'});await inspect.click();await expect(inspect).toHaveAttribute('aria-pressed','true');const expanded=await canvas.screenshot();await inspect.click();await expect(inspect).toHaveAttribute('aria-pressed','false');expect(expanded.equals(await canvas.screenshot())).toBe(false);
   await page.locator('.core-stage-buttons button').nth(2).click();
   await expect(page.locator('.core-controls p')).toContainText('Approved scope');
 });

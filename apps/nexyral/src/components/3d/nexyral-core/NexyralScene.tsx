@@ -6,7 +6,7 @@ import CoreLights from "./CoreLights";
 import OrbitalRing from "./OrbitalRing";
 import PipelineNodes from "./PipelineNodes";
 import DataParticles from "./DataParticles";
-export default function NexyralScene({ reduced, light, active, onReady }: { reduced: boolean; light: boolean; active: number; onReady: () => void }) {
+export default function NexyralScene({ reduced, light, active, expanded, onReady }: { reduced: boolean; light: boolean; active: number; expanded: boolean; onReady: () => void }) {
   const group = useRef<Group>(null);
   useFrame(({ pointer, clock }, delta) => {
     if (group.current && !reduced) {
@@ -21,7 +21,7 @@ export default function NexyralScene({ reduced, light, active, onReady }: { redu
     <>
       <CoreLights />
       <group ref={group}>
-        <CoreEngine reduced={reduced} light={light} onReady={onReady} />
+        <CoreEngine reduced={reduced} light={light} expanded={expanded} active={active} onReady={onReady} />
         <OrbitalRing light={light} reduced={reduced} radius={1.55} rotation={[0.8, 0.2, 0.3]} />
         <OrbitalRing light={light} reduced={reduced} radius={1.9} rotation={[-0.5, 0.4, -0.35]} />
         <OrbitalRing light={light} reduced={reduced} radius={2.3} rotation={[0.4, 0.9, 0.1]} />
