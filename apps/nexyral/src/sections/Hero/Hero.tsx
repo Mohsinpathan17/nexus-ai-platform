@@ -1,6 +1,6 @@
 import { lazy, Suspense } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowDown, Play, Command } from "lucide-react";
+import { ArrowDown, ArrowUpRight, Play, Check } from "lucide-react";
 import { Button } from "../../components/ui/Primitives";
 const NexyralCore = lazy(
   () => import("../../components/3d/nexyral-core/NexyralCore"),
@@ -10,8 +10,8 @@ export default function Hero() {
   return (
     <section className="hero container" aria-labelledby="hero-title">
       <div className="hero-topline">
-        <span>THE AUTONOMOUS ENGINEERING PLATFORM</span>
-        <span className="edition">INTELLIGENCE, IN MOTION. / 001</span>
+        <span>THE AI SOFTWARE STUDIO</span>
+        <span className="edition">EARLY ACCESS / FREE TO BUILD</span>
       </div>
       <div className="hero-layout">
         <motion.div
@@ -34,16 +34,17 @@ export default function Hero() {
           </p>
           <div className="hero-buttons">
             <Button to="/get-started">Start Building</Button>
-            <a className="watch-link" href="#watch">
+            <a className="watch-link" href="#watch" aria-label="Watch the 30-second walkthrough">
               <span>
                 <Play size={12} fill="currentColor" />
               </span>
-              Watch the 30-second walkthrough
+              Watch it work <small>30 sec</small>
             </a>
           </div>
           <div className="hero-note">
-            <Command size={13} /> Free early access. No credit card required.
+            <Check size={15} /> Free early access. No credit card required.
           </div>
+          <a className="hero-example-link" href="#showcase">Explore a working example <ArrowUpRight size={15} /></a>
         </motion.div>
         <div className="hero-visual">
           <div className="core-halo" />

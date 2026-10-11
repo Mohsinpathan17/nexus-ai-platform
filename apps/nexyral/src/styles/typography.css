@@ -1,11 +1,20 @@
-/* Readable semantic sizes shared by both themes. Instrument coordinates remain secondary. */
+/* One readable type scale, shared across the public site and both themes. */
 :root {
-  --font-body: clamp(16px, 0.2vw + 15px, 18px);
+  --font-copy: "Manrope", Arial, sans-serif;
+  --font-display: "Space Grotesk", "Manrope", Arial, sans-serif;
+  --font-body: clamp(17px, 0.25vw + 16px, 19px);
   --font-action: 15px;
   --font-label: 11px;
+  font-family: var(--font-copy);
 }
 body {
   font-size: var(--font-body);
+}
+h1,
+.story-heading h2,
+.cta-copy h2,
+.final-cta h2 {
+  font-family: var(--font-display);
 }
 .desktop-nav,
 .nav-actions,
@@ -14,15 +23,15 @@ body {
   font-size: var(--font-action);
 }
 .theme-control select {
-  font-size: 12px;
+  font-size: 13px;
 }
 .hero-copy > p {
-  font-size: clamp(18px, 0.35vw + 16px, 21px);
-  max-width: 490px;
+  font-size: clamp(19px, 0.3vw + 16px, 22px);
+  max-width: 470px;
   line-height: 1.7;
 }
 .hero-note {
-  font-size: 12px;
+  font: 13px var(--font-copy);
   line-height: 1.6;
 }
 .eyebrow,
@@ -41,6 +50,17 @@ body {
 .story-heading > p {
   font-size: var(--font-body);
 }
+.watch-link {
+  font-size: 15px;
+  line-height: 1.5;
+}
+.hero-buttons {
+  flex-wrap: wrap;
+}
+.demo-label {
+  font-size: 10px;
+  line-height: 1.7;
+}
 @media (max-width: 1050px) {
   .desktop-nav {
     gap: 16px;
@@ -56,10 +76,10 @@ body {
   }
   .hero-topline {
     font-size: 9px;
-    letter-spacing: 0.7px;
+    letter-spacing: 0.07em;
   }
   .core-model-label {
-    font-size: 10px;
+    font-size: 9px;
   }
   .core-stage-buttons button {
     font-size: 10px;
@@ -73,13 +93,6 @@ body {
   }
   .hero-bottom {
     font-size: 9px;
-    letter-spacing: 0.6px;
+    letter-spacing: 0.06em;
   }
 }
-:root { --font-copy: 'Manrope', Arial, sans-serif; --font-display: 'Space Grotesk', 'Manrope', Arial, sans-serif; --font-body: clamp(17px,.25vw + 16px,19px); --font-action: 16px; font-family: var(--font-copy); }
-h1, .story-heading h2, .cta-copy h2 { font-family: var(--font-display); }
-.hero-copy > p { font-size: clamp(19px,.35vw + 17px,23px); }
-.hero-note { font-size: 14px; }.theme-control select { font-size: 13px; }.hero-copy h1 { font-weight: 500; }
-@media(max-width:700px) { .hero-copy > p { font-size: 19px; }.hero-note { font-size: 13px; }.hero-topline { font-size: 10px; } }
-.watch-link { font-size: 15px; line-height: 1.5; }.hero-buttons { flex-wrap: wrap; }
-@media(min-width:701px) and (max-width:1050px) { .desktop-nav { font-size: 14px; } }

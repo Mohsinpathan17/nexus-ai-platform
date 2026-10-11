@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/services.ts dev",
-    "build": "tsc -b && tsc -p tsconfig.server.json && node scripts/copy-worker-assets.ts && vite build",
+    "build": "tsc -b && tsc -p tsconfig.server.json && node scripts/copy-worker-assets.ts && node scripts/package-focus-example.ts && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
     "test:e2e": "playwright test",
@@ -34,7 +34,8 @@
     "preflight:cloud": "node scripts/cloud-preflight.ts",
     "deploy:cloud:staging": "npm run preflight:cloud -- --allow-disabled-generation && npm run build:cloud && wrangler deploy",
     "test:cloud:ui": "playwright test --config playwright.cloud.config.ts",
-    "test:export": "node --test tests/cloud/export.test.ts"
+    "test:export": "node --test tests/cloud/export.test.ts",
+    "package:focus": "node scripts/package-focus-example.ts"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",

@@ -2,8 +2,10 @@ import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import type { Group } from "three";
 import { corePalettes } from "./core.config";
-export default function CoreEngine({ reduced, light }: { reduced: boolean; light: boolean }) {
+export default function CoreEngine({ reduced, light, onReady }: { reduced: boolean; light: boolean; onReady: () => void }) {
   const ref = useRef<Group>(null);
+  const rendered = useRef(false);
+  const confirmRender = () => { if (!rendered.current) { rendered.current = true; onReady(); } };
   const palette = corePalettes[light ? "light" : "dark"];
   useFrame((_, delta) => {
     if (ref.current && !reduced) ref.current.rotation.y += Math.min(delta, 0.05) * 0.22;
@@ -12,7 +14,7 @@ export default function CoreEngine({ reduced, light }: { reduced: boolean; light
     <group ref={ref} rotation={[0.22, 0.3, -0.12]}>
       {Array.from({ length: 7 }, (_, index) => (
         <group key={index} position={[0, (index - 3) * 0.19, 0]} rotation={[0, index * 0.12, 0]}>
-          <mesh>
+          <mesh onAfterRender={index === 0 ? confirmRender : undefined}>
             <cylinderGeometry args={[0.72, 0.72, 0.12, 6]} />
             <meshStandardMaterial color={palette.shell} metalness={0.32} roughness={0.3} />
           </mesh>

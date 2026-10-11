@@ -1,4 +1,4 @@
-import { Component, useEffect, useState, useRef, type ReactNode } from "react";
+import { Component, useCallback, useEffect, useState, useRef, type ReactNode } from "react";
 import { Canvas } from "@react-three/fiber";
 import { usePrefersReducedMotion } from "../../../hooks/usePrefersReducedMotion";
 import { stages, stageDescriptions } from "./core.config";
@@ -31,6 +31,8 @@ export default function NexyralCore() {
   const { resolved } = useTheme();
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [ready, setReady] = useState(false);
+  const confirmReady = useCallback(() => setReady(true), []);
   const container = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(true);
   const [foreground, setForeground] = useState(() => !document.hidden);
@@ -63,7 +65,7 @@ export default function NexyralCore() {
       className="core-canvas"
 
     >
-      <div className="core-render" role="img" aria-label={`Computational core: ${stages[active]} stage selected`}>
+      <div className="core-render" data-render-ready={ready} role="img" aria-label={`Computational core: ${stages[active]} stage selected`}>
       {supported ? (
         <CoreBoundary>
           <Canvas
@@ -75,16 +77,18 @@ export default function NexyralCore() {
               powerPreference: "low-power",
             }}
             frameloop={reduced || paused || !visible || !foreground ? "demand" : "always"}
-            onCreated={({ gl }) => {
+            onCreated={({ gl, invalidate }) => {
               gl.setClearColor(0x000000, 0);
+              invalidate();
             }}
           >
-            <NexyralScene reduced={Boolean(reduced) || paused} light={resolved === "light"} active={active} />
+            <NexyralScene reduced={Boolean(reduced) || paused} light={resolved === "light"} active={active} onReady={confirmReady} />
           </Canvas>
         </CoreBoundary>
       ) : (
         <Fallback />
       )}
+      {supported && !ready && <div className="core-first-frame" aria-hidden="true"><Fallback /></div>}
       <div className="core-labels" aria-hidden="true">
         {stages.map((stage, index) => (
           <span key={stage} className={`node-label core-label label-${index}${active === index ? " is-active" : ""}`}>

@@ -18,7 +18,7 @@ export default function FinalCTA() {
         <br />
         <span>Give it to NEXYRAL.</span>
       </h2>
-      <p>A connected path from your intent to verified software.</p>
+      <p>Describe the interface you have in mind. Start making it real.</p>
       <div>
         <Button to="/get-started">Start Building</Button>
         <Button to="/how-it-works" secondary>
@@ -26,7 +26,7 @@ export default function FinalCTA() {
         </Button>
       </div>
       <small>
-        Platform in development. Explore the product direction today.
+        Free early access. Review generated code before putting it into production.
       </small>
     </section>
   );

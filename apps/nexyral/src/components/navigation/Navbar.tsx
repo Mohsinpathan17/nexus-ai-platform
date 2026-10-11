@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import ThemeControl from "../ui/ThemeControl";
 import { useAuth } from "../../app/auth-context";
@@ -13,6 +13,7 @@ const links = [
 ];
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const toggle = useRef<HTMLButtonElement>(null);
   const [scrolled, setScrolled] = useState(false);
   const { user } = useAuth();
   const location = useLocation();
@@ -28,7 +29,7 @@ export default function Navbar() {
   useEffect(() => {
     if (!menuOpen) return;
     const close = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") { setOpen(false); toggle.current?.focus(); }
     };
     window.addEventListener("keydown", close);
     return () => window.removeEventListener("keydown", close);
@@ -39,9 +40,9 @@ export default function Navbar() {
         <Logo />
         <nav className="desktop-nav" aria-label="Main navigation">
           {links.map(([label, path]) => (
-            <Link key={path} to={path}>
+            <NavLink key={path} to={path}>
               {label}
-            </Link>
+            </NavLink>
           ))}
         </nav>
         <div className="nav-actions">
@@ -53,6 +54,7 @@ export default function Navbar() {
             <Button to="/get-started">Get Started</Button>
           </span>
           <button
+            ref={toggle}
             className="menu-toggle"
             aria-label={menuOpen ? "Close navigation" : "Open navigation"}
             aria-expanded={menuOpen}
@@ -71,11 +73,12 @@ export default function Navbar() {
           id="mobile-navigation"
           className="mobile-nav"
           aria-label="Mobile navigation"
+          onClick={() => setOpen(false)}
         >
           {links.map(([label, path]) => (
-            <Link key={path} to={path}>
+            <NavLink key={path} to={path}>
               {label}
-            </Link>
+            </NavLink>
           ))}
           <Link to={user ? "/workspace" : "/login"}>
             {user ? "Workspace" : "Sign In"}

@@ -4,9 +4,9 @@ export function Logo() {
   return (
     <Link className="logo" to="/" aria-label="NEXYRAL home">
       <span className="logo-symbol" aria-hidden="true">
-        N
+        <svg viewBox="0 0 32 32" fill="none" width="32" height="32"><path d="M4 27 11 5l10 22 7-22" stroke="currentColor" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" /><path d="m4 27 4-12" stroke="var(--accent)" strokeWidth="3" strokeLinecap="round" /></svg>
       </span>
-      NEXYRAL<span className="logo-dot">®</span>
+      NEXYRAL
     </Link>
   );
 }

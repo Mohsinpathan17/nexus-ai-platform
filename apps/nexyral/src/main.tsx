@@ -15,6 +15,7 @@ import "./styles/cloud-studio.css";
 import "./styles/account.css";
 import "./styles/pricing.css";
 import "./styles/showcase.css";
+import "./styles/refinement.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
