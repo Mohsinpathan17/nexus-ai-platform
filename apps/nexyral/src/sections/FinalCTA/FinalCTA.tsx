@@ -14,13 +14,13 @@ export default function FinalCTA() {
       </div>
       <span className="eyebrow">INTENT → EXECUTION</span>
       <h2 id="final-title">
-        Have an idea?
+        What will you
         <br />
-        <span>Give it to NEXYRAL.</span>
+        <span>build first?</span>
       </h2>
-      <p>Describe the interface you have in mind. Start making it real.</p>
+      <p>Start with a few sentences. We’ll help you turn them into a frontend you can build on.</p>
       <div>
-        <Button to="/get-started">Start Building</Button>
+        <Button to="/#start">Start with an idea</Button>
         <Button to="/how-it-works" secondary>
           Explore How It Works
         </Button>

@@ -47,17 +47,18 @@ export default function BuildDemo() {
     <StorySection
       id="watch"
       index="03"
-      label="INTENT INTO SOFTWARE"
+      label="A QUICK TOUR"
       title={
         <>
-          Watch an idea
+          See where to start
           <br />
-          <span>become software.</span>
+          <span>in 30 seconds.</span>
         </>
       }
-      description="Follow the engineering sequence, from the first requirement to the release handoff."
+      description="A short walkthrough of the current workspace: create an account, describe your app, and download its source."
     >
       <BuildWalkthrough />
+      <details className="walkthrough-simulation"><summary>Explore a simulated future engineering run</summary>
       <div className="run-toolbar">
         <DemoLabel />
         <button
@@ -169,6 +170,7 @@ export default function BuildDemo() {
               : "Demonstration paused."}
         </p>
       </div>
+      </details>
     </StorySection>
   );
 }

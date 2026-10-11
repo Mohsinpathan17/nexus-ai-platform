@@ -143,3 +143,9 @@ test('updated homepage typography has no overflow at phone, tablet and desktop s
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   }
 });
+test('homepage draft reaches the authenticated workspace and clears only after a successful save',async({page})=>{
+ await fixtures(page);await page.goto('/login');await page.evaluate(()=>sessionStorage.setItem('nexyral-build-draft','Create a bakery website with a menu and opening hours.'));await page.reload();
+ await page.locator('input[name=email]').fill('builder@example.invalid');await page.locator('input[name=password]').fill('password8');await page.getByRole('button',{name:'Sign in',exact:true}).click();
+ await expect(page.getByLabel('What should we build?')).toHaveValue('Create a bakery website with a menu and opening hours.');
+ await page.getByRole('button',{name:'Save project',exact:true}).click();await expect(page.getByLabel('What should we build?')).toHaveValue('');expect(await page.evaluate(()=>sessionStorage.getItem('nexyral-build-draft'))).toBeNull();
+});

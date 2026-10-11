@@ -1,3 +1,4 @@
+import { readBuildDraft, clearBuildDraft } from "../lib/build-draft";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import {
   createUserWithEmailAndPassword,
@@ -62,7 +63,7 @@ export default function CloudStudio() {
   const [codeVerified,setCodeVerified]=useState(false);
   const location = useLocation();
   const signup = location.pathname === "/get-started";
-  const [intent, setIntent] = useState("");
+  const [intent, setIntent] = useState(readBuildDraft);
   const [clock, setClock] = useState(() => Date.now());
   const [phase, setPhase] = useState<"idle" | "generating">("idle");
   const [notice, setNotice] = useState("");
@@ -166,6 +167,7 @@ export default function CloudStudio() {
       const project = await request<Project>(`/projects/${value.id}`);
       setSelected(project);
       setIntent("");
+      clearBuildDraft();
       setProjects((current) => [project, ...current]);
     });
   }
@@ -240,7 +242,7 @@ export default function CloudStudio() {
         {notice || (!ready ? "Checking your session…" : "")}
       </p>}
       {!user ? (
-        <CloudAccount signup={signup} ready={ready} busy={busy} notice={notice} authenticate={authenticate}
+        <CloudAccount signup={signup} draftSaved={Boolean(readBuildDraft())} ready={ready} busy={busy} notice={notice} authenticate={authenticate}
           google={() => void perform(() => { const provider = new GoogleAuthProvider(); provider.setCustomParameters({ prompt: "select_account" }); return signInWithPopup(auth, provider); })}
           github={import.meta.env.VITE_FIREBASE_GITHUB === "1" ? () => void perform(() => signInWithPopup(auth, new GithubAuthProvider())) : undefined}
           recover={email => void perform(() => sendPasswordResetEmail(auth, email, { url: "https://nexyral.online/login" }), "If an account exists, check your inbox for recovery instructions.")} />

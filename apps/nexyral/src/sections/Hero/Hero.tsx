@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowDown, ArrowUpRight, Play, Check } from "lucide-react";
-import { Button } from "../../components/ui/Primitives";
+
 const NexyralCore = lazy(
   () => import("../../components/3d/nexyral-core/NexyralCore"),
 );
@@ -10,7 +10,7 @@ export default function Hero() {
   return (
     <section className="hero container" aria-labelledby="hero-title">
       <div className="hero-topline">
-        <span>THE AI SOFTWARE STUDIO</span>
+        <span>AI APP BUILDER</span>
         <span className="edition">EARLY ACCESS / FREE TO BUILD</span>
       </div>
       <div className="hero-layout">
@@ -21,19 +21,19 @@ export default function Hero() {
           transition={{ duration: reduced ? 0 : 0.7 }}
         >
           <div className="eyebrow">
-            <span className="little-line" /> IDEAS DESERVE TO EXIST.
+            <span className="little-line" /> FROM INTENT TO EXECUTION.
           </div>
           <h1 id="hero-title">
-            From Intent
+            Describe an app.
             <br />
-            to <span>Execution.</span>
+            <span>AI writes the code.</span>
           </h1>
           <p>
-            Turn your idea into React and TypeScript frontend source with AI.
-            Review it, download it, and make it your own.
+            Tell NEXYRAL what you want to make. It creates the screens and code
+            for a web app, ready for you to review and download.
           </p>
           <div className="hero-buttons">
-            <Button to="/get-started">Start Building</Button>
+            <a className="button" href="#start">Describe your app <ArrowUpRight size={17}/></a>
             <a className="watch-link" href="#watch" aria-label="Watch the 30-second walkthrough">
               <span>
                 <Play size={12} fill="currentColor" />
@@ -49,7 +49,7 @@ export default function Hero() {
         <div className="hero-visual">
           <div className="core-halo" />
           <div className="visual-coordinate coordinate-top">
-            NX / CORE SYSTEM<span>01 — 05</span>
+            THE NEXYRAL CORE<span>01 — 05</span>
           </div>
           <Suspense
             fallback={<div className="core-loading">INITIALIZING CORE</div>}
@@ -57,17 +57,17 @@ export default function Hero() {
             <NexyralCore />
           </Suspense>
           <div className="visual-coordinate coordinate-bottom">
-            <span className="core-cross">+</span> AUTONOMOUS EXECUTION ENGINE
+            <span className="core-cross">+</span> OUR WORKFLOW, VISUALIZED
             <span>HUMAN-DIRECTED</span>
           </div>
         </div>
       </div>
       <div className="hero-bottom">
-        <span>LESS FRICTION. MORE FORWARD.</span>
-        <a href="#engine" aria-label="Explore the engineering pipeline">
+        <span>DESCRIBE → GENERATE → REVIEW</span>
+        <a href="#start" aria-label="Start describing an app">
           <ArrowDown size={16} />
         </a>
-        <span>BUILT TO GO BEYOND GENERATION</span>
+        <span>YOUR IDEA. YOUR SOURCE CODE.</span>
       </div>
     </section>
   );

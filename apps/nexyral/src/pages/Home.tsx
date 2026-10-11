@@ -1,3 +1,5 @@
+import GettingStarted from "../sections/GettingStarted/GettingStarted";
+import Questions from "../sections/Questions/Questions";
 import Showcase from "../sections/Showcase/Showcase";
 import Hero from "../sections/Hero/Hero";
 import EngineStrip from "../sections/Engine/EngineStrip";
@@ -17,11 +19,16 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <EngineStrip />
+      <GettingStarted />
       <Showcase />
+      <BuildDemo />
+      <Questions />
+      <details className="engineering-disclosure">
+        <summary className="container"><span>FOR THE CURIOUS</span><strong>Explore the engineering vision</strong><small>How the engine, project memory, and verification fit together</small></summary>
+        <p className="container engineering-context">These interactive sections explain NEXYRAL’s product direction. They illustrate workflows beyond the frontend generation available today.</p>
+      <EngineStrip />
       <ProblemSolution />
       <Workflow />
-      <BuildDemo />
       <Workspace />
       <Intelligence />
       <SelfRepair />
@@ -30,6 +37,7 @@ export default function Home() {
       <Features />
       <Solutions />
       <Pricing />
+      </details>
       <FinalCTA />
     </>
   );

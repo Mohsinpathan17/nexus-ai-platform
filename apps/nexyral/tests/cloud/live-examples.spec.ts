@@ -8,7 +8,7 @@ for (const width of [390,1440]) test(`AI showcase renders isolated interactive o
  await preview.getByRole('button',{name:'Reset',exact:true}).click();await expect(preview.locator('output')).toHaveText('100');
  await expect(page.locator('iframe.live-preview')).toHaveAttribute('sandbox','allow-scripts allow-forms');
  await page.getByRole('button',{name:'View code',exact:true}).click();await expect(page.getByLabel('Actual AI-generated source')).toContainText(source.js);
- await page.getByRole('button',{name:'Support inbox'}).click();await expect(page.locator('.live-brief h3')).toHaveText('Support inbox');
+ await page.locator('.live-example-tabs').getByRole('button',{name:'Support inbox'}).click();await expect(page.locator('.live-brief h3')).toHaveText('Support inbox');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
 test('a failed AI request shows an honest error and no substituted example',async({page})=>{

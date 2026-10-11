@@ -10,7 +10,7 @@ await page.emulateMedia({reducedMotion:'reduce'});await page.goto('https://nexyr
 for(const width of [1440,390]) {
 await page.setViewportSize({width,height:900});
 for(const name of ['Startup runway','Support inbox','Launch planner']){
- await page.getByRole('button',{name}).click();await page.waitForTimeout(1200);
+ await page.locator('.live-example-tabs').getByRole('button',{name}).click();await page.waitForTimeout(1200);
  await expect(page.locator('iframe.live-preview')).toBeVisible();
  if(name==='Startup runway')await expect(page.locator('iframe.live-preview')).toHaveCSS('height','840px');
  const frame=await (await page.locator('iframe.live-preview').elementHandle()).contentFrame();
@@ -23,5 +23,16 @@ for(const name of ['Startup runway','Support inbox','Launch planner']){
 }
 }
 await page.setViewportSize({width:1440,height:1000});
-await page.getByRole('button',{name:'Startup runway'}).click();await expect(page.locator('iframe.live-preview')).toBeVisible();await page.waitForTimeout(800);await page.locator('#showcase').screenshot({path:'artifacts/live-examples-desktop.png'});
-await page.setViewportSize({width:390,height:900});await page.locator('iframe.live-preview').scrollIntoViewIfNeeded();await page.waitForTimeout(300);await page.locator('.live-app-area').screenshot({path:'artifacts/live-examples-mobile.png'});const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);expect(overflow).toBe(false);expect(errors).toEqual([]);console.log(JSON.stringify({overflow,errors}));await browser.close();
+await page.locator('.live-example-tabs').getByRole('button',{name:'Startup runway'}).click();await expect(page.locator('iframe.live-preview')).toBeVisible();await page.waitForTimeout(800);await page.locator('#showcase').screenshot({path:'artifacts/live-examples-desktop.png'});
+await page.setViewportSize({width:390,height:900});await page.locator('iframe.live-preview').scrollIntoViewIfNeeded();await page.waitForTimeout(300);await page.locator('.live-app-area').screenshot({path:'artifacts/live-examples-mobile.png'});const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);expect(overflow).toBe(false);expect(errors).toEqual([]);console.log(JSON.stringify({overflow,errors}));
+await page.getByRole('link',{name:'Describe your app',exact:true}).click();
+const draft='Create a bakery website with a menu and opening hours.';
+await page.getByLabel('What would you like to make?',{exact:true}).fill(draft);
+await page.getByRole('button',{name:'Continue with this idea',exact:true}).click();
+await expect(page).toHaveURL('https://nexyral.online/get-started');
+await expect(page.getByText('Your idea is saved for this tab.',{exact:false})).toBeVisible();
+await page.reload();
+expect(await page.evaluate(()=>sessionStorage.getItem('nexyral-build-draft'))).toBe(draft);
+expect(errors).toEqual([]);
+console.log(JSON.stringify({guidedSignup:'passed',inferenceRequests:0}));
+await browser.close();

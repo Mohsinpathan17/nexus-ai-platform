@@ -1,0 +1,8 @@
+const questions = [
+ ['What does NEXYRAL actually make?','It uses AI to create frontend code: the screens, layouts, and interactions people see in a web app. Today, your workspace generates React and TypeScript source that you can review and download.'],
+ ['Do I need to know how to code?','You can describe an idea in ordinary language and try the public examples without coding. Running or changing the downloaded project currently requires a development environment, so you may want help from a developer.'],
+ ['Is it free?','Early access is free and does not require a credit card. New AI requests share a daily service budget and are subject to provider availability. You can keep using the saved public examples without another AI request.'],
+ ['Can I launch a complete business with it?','The current workspace creates a frontend starting point. Real databases, payments, authentication for your generated app, automated testing, and production deployment need further development. NEXYRAL’s engineering sections show the longer-term direction.'],
+ ['Can I keep the code?','Yes. You can review and download the source. Check it before using it in production; AI output can contain mistakes.'],
+];
+export default function Questions(){return <section className="questions-section container" aria-labelledby="questions-title"><div><span className="eyebrow">NO GUESSWORK</span><h2 id="questions-title">A few things<br/><span>you might be wondering.</span></h2><p>Clear answers before you start.</p></div><div className="questions-list">{questions.map(([question,answer])=><details key={question}><summary>{question}<span aria-hidden="true">+</span></summary><p>{answer}</p></details>)}</div></section>;}
