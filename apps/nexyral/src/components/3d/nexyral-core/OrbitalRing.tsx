@@ -7,7 +7,7 @@ export default function OrbitalRing({ radius, rotation, light, reduced }: {
 }) {
   const ref = useRef<Group>(null);
   const palette = corePalettes[light ? "light" : "dark"];
-  useFrame((_, delta) => { if (ref.current && !reduced) ref.current.rotation.z += delta * 0.055 / radius; });
+  useFrame((_, delta) => { if (ref.current && !reduced) ref.current.rotation.z += Math.min(delta, 0.05) * 0.18 / radius; });
   return <group rotation={rotation}><group ref={ref}>
     <mesh><torusGeometry args={[radius, 0.008, 5, 128]} /><meshBasicMaterial color={palette.ring} transparent opacity={0.65} /></mesh>
     <mesh rotation={[0, 0, radius]}><torusGeometry args={[radius, 0.014, 5, 40, Math.PI * 0.28]} /><meshBasicMaterial color={palette.accent} /></mesh>

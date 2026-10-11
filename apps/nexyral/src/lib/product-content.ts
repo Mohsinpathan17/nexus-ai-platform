@@ -104,29 +104,3 @@ export const audiences = [
     "Example intent: a booking tool with availability, reminders, and an admin view.",
   ],
 ];
-export const plans = [
-  {
-    name: "Free",
-    audience: "Explore the workflow",
-    detail:
-      "A starting point for learning how intent becomes an engineering plan.",
-  },
-  {
-    name: "Pro",
-    audience: "For independent builders",
-    detail:
-      "Designed for deeper project work and an ongoing engineering workflow.",
-  },
-  {
-    name: "Pro+",
-    audience: "For complex projects",
-    detail:
-      "A proposed tier for larger context and more demanding engineering tasks.",
-  },
-  {
-    name: "Team",
-    audience: "For shared ownership",
-    detail:
-      "Designed around collaboration, shared context, and review controls.",
-  },
-];

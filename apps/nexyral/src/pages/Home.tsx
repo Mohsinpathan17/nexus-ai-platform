@@ -1,3 +1,4 @@
+import Showcase from "../sections/Showcase/Showcase";
 import Hero from "../sections/Hero/Hero";
 import EngineStrip from "../sections/Engine/EngineStrip";
 import ProblemSolution from "../sections/Workflow/ProblemSolution";
@@ -17,6 +18,7 @@ export default function Home() {
     <>
       <Hero />
       <EngineStrip />
+      <Showcase />
       <ProblemSolution />
       <Workflow />
       <BuildDemo />

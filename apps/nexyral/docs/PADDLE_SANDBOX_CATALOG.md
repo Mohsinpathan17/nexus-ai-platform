@@ -1,5 +1,7 @@
 # NEXYRAL Paddle sandbox catalog
 
+> Current decision (2026-10-11): NEXYRAL remains free during early access. Paid pricing and checkout are deferred. This catalog is preparation for a future billing implementation; it does not enable subscriptions.
+
 The owner approved these base prices on October 11, 2026. Each plan has one product, a monthly price and an annual price. Every price has a **7-day free trial**. Annual billing is ten monthly payments, representing two months off relative to twelve monthly payments.
 
 | Plan | USD monthly/yearly | UK GBP monthly/yearly | Ireland EUR monthly/yearly | Australia AUD monthly/yearly |

@@ -1,0 +1,35 @@
+.showcase-layout { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(32px, 6vw, 88px); align-items: center; }
+.showcase-brief blockquote { margin: 24px 0; font-family: var(--font-display); font-size: clamp(27px, 3vw, 38px); line-height: 1.35; letter-spacing: -.035em; }
+.showcase-stack { display: flex; flex-wrap: wrap; gap: 8px; }
+.showcase-stack span { border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; font-size: 11px; letter-spacing: .06em; color: var(--muted); }
+.showcase-brief > p { font-size: 17px; line-height: 1.75; color: var(--muted); margin: 24px 0 32px; }
+.focus-app { border: 1px solid var(--border); border-radius: 22px; overflow: hidden; background: var(--surface); box-shadow: 0 24px 80px -45px var(--core-glow); }
+.focus-app > header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 22px 28px; border-bottom: 1px solid var(--border); }
+.focus-brand { display: flex; align-items: center; gap: 10px; font-weight: 650; font-size: 18px; }
+.focus-brand > span { width: 30px; height: 30px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); border-radius: 8px; }
+.focus-demo-label { display: flex; gap: 8px; align-items: center; font-size: 10px; letter-spacing: .06em; color: var(--muted); }
+.focus-body { padding: clamp(24px, 3vw, 36px); }
+.focus-body h3 { font-size: clamp(26px, 3vw, 34px); line-height: 1.25; letter-spacing: -.035em; margin: 16px 0; }
+.focus-progress { font-size: 15px; color: var(--muted); }
+.focus-progress-track { height: 4px; background: var(--accent-soft); border-radius: 4px; overflow: hidden; margin: 16px 0 28px; }
+.focus-progress-track > div { background: var(--accent); height: 100%; }
+.focus-body form { display: flex; gap: 8px; }
+.focus-body input[type="text"], .focus-body input:not([type]) { width: 100%; min-width: 0; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; color: var(--text); padding: 14px; font: inherit; font-size: 16px; }
+.focus-body form button { display: grid; place-items: center; border: 0; border-radius: 9px; width: 48px; flex: none; background: var(--button); color: var(--button-text); }
+.focus-body button:disabled { cursor: default; }
+.focus-filters { display: flex; gap: 4px; margin: 24px 0 12px; }
+.focus-filters button { padding: 10px 12px; min-height: 44px; background: transparent; color: var(--muted); font-size: 13px; border: 0; border-radius: 7px; }
+.focus-filters button[aria-pressed="true"] { color: var(--accent); background: var(--accent-soft); }
+.focus-tasks { list-style: none; margin: 0; padding: 0; }
+.focus-tasks li { border-bottom: 1px solid var(--border); }
+.focus-tasks label { position: relative; display: flex; align-items: center; gap: 12px; min-height: 58px; padding: 14px 0; font-size: 16px; line-height: 1.6; cursor: pointer; overflow-wrap: anywhere; }
+.focus-tasks input { position: absolute; opacity: 0; width: 22px; height: 22px; }
+.focus-check { display: grid; place-items: center; flex: none; height: 22px; width: 22px; border: 1px solid var(--border); border-radius: 6px; }
+.focus-tasks input:focus-visible + .focus-check { outline: 2px solid var(--accent); outline-offset: 4px; }
+.focus-tasks .is-done { color: var(--muted); }
+.focus-tasks .is-done .focus-check { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.focus-tasks .is-done label > span:last-child { text-decoration: line-through; }
+.focus-body footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; color: var(--muted); font-size: 12px; margin-top: 20px; }
+.focus-body footer button { color: var(--muted); background: transparent; border: 0; padding: 10px 0 10px 10px; min-height: 44px; text-decoration: underline; }
+.focus-empty { font-size: 16px; color: var(--muted); padding: 20px 0; }
+@media (max-width: 760px) { .showcase-layout { grid-template-columns: minmax(0, 1fr); }.focus-app > header { padding: 20px 24px; }.focus-filters button { padding: 10px; } }

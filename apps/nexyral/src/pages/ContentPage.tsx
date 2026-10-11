@@ -29,9 +29,9 @@ const content: Record<string, { title: string; intro: string }> = {
       "Different projects need different decisions. Explore how a connected engineering workflow can support yours.",
   },
   pricing: {
-    title: "Room for your ambition.",
+    title: "Start with an idea. Start for free.",
     intro:
-      "Free, Pro, Pro+, and Team are proposed tiers. Pricing and entitlements are not finalized, and subscriptions are not available yet.",
+      "Explore NEXYRAL during free early access. No credit card, subscription, or checkout required. Generation remains subject to available capacity and usage safeguards.",
   },
   docs: {
     title: "The engineering handbook.",

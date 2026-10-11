@@ -29,8 +29,8 @@ export default function Hero() {
             to <span>Execution.</span>
           </h1>
           <p>
-            NEXYRAL transforms natural-language intent into engineered, tested
-            and deployable software.
+            Turn your idea into React and TypeScript frontend source with AI.
+            Review it, download it, and make it your own.
           </p>
           <div className="hero-buttons">
             <Button to="/get-started">Start Building</Button>
@@ -42,7 +42,7 @@ export default function Hero() {
             </a>
           </div>
           <div className="hero-note">
-            <Command size={13} /> Your vision. An entire engineering workflow.
+            <Command size={13} /> Free early access. No credit card required.
           </div>
         </motion.div>
         <div className="hero-visual">

@@ -6,7 +6,7 @@ export default function CoreEngine({ reduced, light }: { reduced: boolean; light
   const ref = useRef<Group>(null);
   const palette = corePalettes[light ? "light" : "dark"];
   useFrame((_, delta) => {
-    if (ref.current && !reduced) ref.current.rotation.y += delta * 0.085;
+    if (ref.current && !reduced) ref.current.rotation.y += Math.min(delta, 0.05) * 0.22;
   });
   return (
     <group ref={ref} rotation={[0.22, 0.3, -0.12]}>

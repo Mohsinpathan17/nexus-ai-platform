@@ -1,6 +1,6 @@
 import { Component, useEffect, useState, useRef, type ReactNode } from "react";
 import { Canvas } from "@react-three/fiber";
-import { useReducedMotion } from "framer-motion";
+import { usePrefersReducedMotion } from "../../../hooks/usePrefersReducedMotion";
 import { stages, stageDescriptions } from "./core.config";
 import { useTheme } from "../../../app/theme-context";
 import NexyralScene from "./NexyralScene";
@@ -27,9 +27,10 @@ class CoreBoundary extends Component<
   }
 }
 export default function NexyralCore() {
-  const reduced = useReducedMotion();
+  const reduced = usePrefersReducedMotion();
   const { resolved } = useTheme();
   const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
   const container = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(true);
   const [foreground, setForeground] = useState(() => !document.hidden);
@@ -66,19 +67,19 @@ export default function NexyralCore() {
       {supported ? (
         <CoreBoundary>
           <Canvas
-            dpr={[1, mobile ? 1.25 : 1.75]}
+            dpr={[1, mobile ? 1.75 : 2]}
             camera={{ position: [0, 0, 6.6], fov: 45 }}
             gl={{
               alpha: true,
-              antialias: !mobile,
+              antialias: true,
               powerPreference: "low-power",
             }}
-            frameloop={reduced || !visible || !foreground ? "demand" : "always"}
+            frameloop={reduced || paused || !visible || !foreground ? "demand" : "always"}
             onCreated={({ gl }) => {
               gl.setClearColor(0x000000, 0);
             }}
           >
-            <NexyralScene reduced={Boolean(reduced)} light={resolved === "light"} active={active} />
+            <NexyralScene reduced={Boolean(reduced) || paused} light={resolved === "light"} active={active} />
           </Canvas>
         </CoreBoundary>
       ) : (
@@ -93,7 +94,7 @@ export default function NexyralCore() {
       </div>
       </div>
       <div className="core-controls">
-        <span className="technical core-model-label">INTERACTIVE SYSTEM MODEL</span>
+        <div className="core-motion-control"><span className="technical core-model-label">INTERACTIVE SYSTEM MODEL</span>{supported && <button type="button" disabled={Boolean(reduced)} onClick={() => setPaused(value => !value)} aria-label={paused ? "Resume Core rotation" : "Pause Core rotation"}>{reduced ? "Reduced motion" : paused ? "Resume rotation" : "Pause rotation"}</button>}</div>
         <div className="core-stage-buttons" role="group" aria-label="Explore Core stages">
           {stages.map((stage, index) => <button key={stage} type="button" aria-pressed={active === index} onClick={() => setActive(index)}><span>0{index + 1}</span>{stage}</button>)}
         </div>

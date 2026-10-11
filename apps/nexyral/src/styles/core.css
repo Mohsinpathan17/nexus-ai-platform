@@ -22,7 +22,7 @@
 @media (max-width: 1050px) and (min-width: 701px) { .hero-layout { gap: 0; } .core-stage-buttons button { gap: 3px; font-size: 8px; } .core-stage-buttons button span { display: none; } }
 @media (max-width: 700px) {
   .hero-layout { min-height: 0; gap: 0; }
-  .hero-visual { height: 440px; margin-top: 30px; }
+  .hero-visual { height: 500px; margin-top: 30px; }
   .core-render { inset: 24px -8px 140px; }
   .core-controls { left: 12px; right: 12px; bottom: 44px; }
   .core-controls p { font-size: 10px; min-height: 36px; }
@@ -31,3 +31,8 @@
   .hero-visual::before { inset: 20px 0 130px; background-size: 36px 36px; }
 }
 @media (prefers-reduced-motion: reduce) { .core-stage-buttons button { transition: none; } }
+.core-motion-control { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+.core-motion-control .core-model-label { margin-bottom: 0; }
+.core-motion-control button { color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 7px 9px; font-size: 11px; cursor: pointer; }
+.core-motion-control button:disabled { cursor: default; }
+.core-render canvas { display: block; }
