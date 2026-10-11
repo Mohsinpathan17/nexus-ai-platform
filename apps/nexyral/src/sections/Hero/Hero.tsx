@@ -44,7 +44,7 @@ export default function Hero() {
           <div className="hero-note">
             <Check size={15} /> Free early access. No credit card required.
           </div>
-          <a className="hero-example-link" href="#showcase">Explore a working example <ArrowUpRight size={15} /></a>
+          <a className="hero-example-link" href="#showcase">Try the AI-built apps <ArrowUpRight size={15} /></a>
         </motion.div>
         <div className="hero-visual">
           <div className="core-halo" />

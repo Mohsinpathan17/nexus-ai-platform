@@ -66,6 +66,7 @@ function database() {
     ),
   );
   db.exec(readFileSync(new URL('./migrations/0002_email_codes.sql',import.meta.url),'utf8'));
+  db.exec(readFileSync(new URL("./migrations/0003_public_examples.sql",import.meta.url),"utf8"));
   const adapter = {
     async batch(statements: {run:()=>Promise<unknown>}[]) {
       db.exec('BEGIN');
@@ -364,4 +365,43 @@ test('signed unverified account becomes eligible only after its email code is co
     const changed=await token({email:'changed@example.invalid',email_verified:false});
     assert.equal((await worker.fetch(request(`/api/cloud/projects/${id}/generate`,changed,{}),env)).status,403);
   }finally{globalThis.fetch=original;db.close();}
+});
+
+
+test('public examples use real provider output once, cache it, and reject arbitrary briefs and origins', async () => {
+  const {db,binding}=database();
+  const env={DB:binding,GEMINI_API_KEY:'test-only',GEMINI_MODEL:'gemini-test',DAILY_GENERATION_LIMIT:'10'} as Env;
+  const original=globalThis.fetch; let calls=0;
+  globalThis.fetch=async()=>{calls++;return Response.json({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({html:'<main><h1>Generated runway calculator</h1></main>',css:'main{padding:20px}',js:'document.querySelector("h1").textContent="Runway";'})}]}}]});};
+  const build=()=>new Request('https://nexyral.example/api/examples/runway',{method:'POST',headers:{Origin:'https://nexyral.example'}});
+  try {
+    const initial=await worker.fetch(new Request('https://nexyral.example/api/examples/runway'),env); assert.equal((await initial.json() as {status:string}).status,'not-built');
+    assert.equal((await worker.fetch(build(),env)).status,200);
+    const cached=await worker.fetch(build(),env);assert.equal((await cached.json() as {cached:boolean}).cached,true);assert.equal(calls,1);
+    assert.equal((await worker.fetch(new Request('https://nexyral.example/api/examples/arbitrary'),env)).status,404);
+    assert.equal((await worker.fetch(new Request('https://nexyral.example/api/examples/runway',{method:'POST',headers:{Origin:'https://attacker.example'}}),env)).status,403);
+    assert.equal(db.prepare('SELECT count FROM generation_usage').get()?.count,1);
+  } finally {globalThis.fetch=original;db.close();}
+});
+test('public example failures are bounded and shared daily budget is enforced',async()=>{
+  const {db,binding}=database();const original=globalThis.fetch;let calls=0;
+  const env={DB:binding,GEMINI_API_KEY:'test-only',GEMINI_MODEL:'gemini-test',DAILY_GENERATION_LIMIT:'1'} as Env;
+  globalThis.fetch=async()=>{calls++;return new Response('',{status:429});};
+  const build=()=>new Request('https://nexyral.example/api/examples/runway',{method:'POST',headers:{Origin:'https://nexyral.example'}});
+  try {assert.equal((await worker.fetch(build(),env)).status,502);assert.equal((await worker.fetch(build(),env)).status,429);assert.equal(calls,1);}
+  finally{globalThis.fetch=original;db.close();}
+});
+
+test('an in-flight public example cannot start a duplicate provider request',async()=>{
+ const {db,binding}=database();db.prepare("INSERT INTO public_examples(id,status,updated_at) VALUES('support','generating',?)").run(Date.now());
+ const response=await worker.fetch(new Request('https://nexyral.example/api/examples/support',{method:'POST',headers:{Origin:'https://nexyral.example'}}),{DB:binding,GEMINI_API_KEY:'test',GEMINI_MODEL:'gemini-test',DAILY_GENERATION_LIMIT:'10'} as Env);
+ assert.equal(response.status,409);assert.equal(db.prepare('SELECT count(*) as count FROM generation_usage').get()?.count,0);db.close();
+});
+test('three failed public builds exhaust the per-example retry cap',async()=>{
+ const {db,binding}=database();const original=globalThis.fetch;let calls=0;
+ globalThis.fetch=async()=>{calls++;return new Response('',{status:503});};
+ const env={DB:binding,GEMINI_API_KEY:'test',GEMINI_MODEL:'gemini-test',DAILY_GENERATION_LIMIT:'10'} as Env;
+ const request=()=>new Request('https://nexyral.example/api/examples/launch',{method:'POST',headers:{Origin:'https://nexyral.example'}});
+ try{for(let attempt=0;attempt<3;attempt++)assert.equal((await worker.fetch(request(),env)).status,502);assert.equal((await worker.fetch(request(),env)).status,409);assert.equal(calls,3);}
+ finally{globalThis.fetch=original;db.close();}
 });

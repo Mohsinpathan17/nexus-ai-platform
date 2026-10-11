@@ -1,3 +1,4 @@
+import { publicExampleRequest } from "./public-examples.ts";
 import { authenticate } from "./auth.ts";
 import { generate } from "./gemini.ts";
 import { addressVerified, emailCodeRequest } from './email-codes.ts';
@@ -60,6 +61,10 @@ export default {
       request.headers.get("Origin") !== url.origin
     )
       return json({ error: "Origin rejected" }, 403);
+    if (url.pathname.startsWith("/api/examples/")) {
+      try { return await publicExampleRequest(request, env); }
+      catch { return json({ error: "Example service unavailable" }, 503); }
+    }
     let user;
     try {
       user = await authenticate(request, env.FIREBASE_PROJECT_ID);

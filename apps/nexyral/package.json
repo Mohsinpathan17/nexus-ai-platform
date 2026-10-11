@@ -35,7 +35,8 @@
     "deploy:cloud:staging": "npm run preflight:cloud -- --allow-disabled-generation && npm run build:cloud && wrangler deploy",
     "test:cloud:ui": "playwright test --config playwright.cloud.config.ts",
     "test:export": "node --test tests/cloud/export.test.ts",
-    "package:focus": "node scripts/package-focus-example.ts"
+    "package:focus": "node scripts/package-focus-example.ts",
+    "test:showcase:live": "node --use-env-proxy scripts/check-public-examples.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",

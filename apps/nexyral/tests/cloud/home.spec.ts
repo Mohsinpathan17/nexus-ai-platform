@@ -1,12 +1,12 @@
 import { test, expect } from '@playwright/test';
 
 for (const width of [375, 1440]) {
-  test(`free homepage example at ${width}px`, async ({ page }) => {
+  test(`free reference example at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: width === 375 ? 'light' : 'dark' });
     const errors: string[] = [];
     page.on('pageerror', error => errors.push(error.message));
-    await page.goto('/');
+    await page.goto('/examples/focus');
     await page.getByLabel('New demo task').fill('Review the launch');
     await page.getByRole('button', { name: 'Add demo task', exact: true }).click();
     await page.getByRole('checkbox', { name: 'Review the launch' }).check();
