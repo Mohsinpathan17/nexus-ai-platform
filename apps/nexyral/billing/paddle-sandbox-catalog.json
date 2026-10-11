@@ -1,0 +1,371 @@
+{
+  "environment": "sandbox",
+  "plans": [
+    {
+      "key": "starter",
+      "product": {
+        "name": "NEXYRAL Starter",
+        "description": "Starter subscription to NEXYRAL, an AI-assisted frontend source generation workspace.",
+        "tax_category": "saas",
+        "custom_data": {
+          "nexyral_catalog": "sandbox-v1",
+          "plan": "starter"
+        }
+      },
+      "prices": [
+        {
+          "description": "NEXYRAL Starter \u2014 monthly",
+          "billing_cycle": {
+            "interval": "month",
+            "frequency": 1
+          },
+          "trial_period": {
+            "interval": "day",
+            "frequency": 7
+          },
+          "unit_price": {
+            "amount": "500",
+            "currency_code": "USD"
+          },
+          "unit_price_overrides": [
+            {
+              "country_codes": [
+                "GB"
+              ],
+              "unit_price": {
+                "amount": "400",
+                "currency_code": "GBP"
+              }
+            },
+            {
+              "country_codes": [
+                "IE"
+              ],
+              "unit_price": {
+                "amount": "450",
+                "currency_code": "EUR"
+              }
+            },
+            {
+              "country_codes": [
+                "AU"
+              ],
+              "unit_price": {
+                "amount": "700",
+                "currency_code": "AUD"
+              }
+            }
+          ],
+          "tax_mode": "account_setting",
+          "quantity": {
+            "minimum": 1,
+            "maximum": 1
+          },
+          "custom_data": {
+            "nexyral_catalog": "sandbox-v1",
+            "plan": "starter",
+            "interval": "month"
+          }
+        },
+        {
+          "description": "NEXYRAL Starter \u2014 annual",
+          "billing_cycle": {
+            "interval": "year",
+            "frequency": 1
+          },
+          "trial_period": {
+            "interval": "day",
+            "frequency": 7
+          },
+          "unit_price": {
+            "amount": "5000",
+            "currency_code": "USD"
+          },
+          "unit_price_overrides": [
+            {
+              "country_codes": [
+                "GB"
+              ],
+              "unit_price": {
+                "amount": "4000",
+                "currency_code": "GBP"
+              }
+            },
+            {
+              "country_codes": [
+                "IE"
+              ],
+              "unit_price": {
+                "amount": "4500",
+                "currency_code": "EUR"
+              }
+            },
+            {
+              "country_codes": [
+                "AU"
+              ],
+              "unit_price": {
+                "amount": "7000",
+                "currency_code": "AUD"
+              }
+            }
+          ],
+          "tax_mode": "account_setting",
+          "quantity": {
+            "minimum": 1,
+            "maximum": 1
+          },
+          "custom_data": {
+            "nexyral_catalog": "sandbox-v1",
+            "plan": "starter",
+            "interval": "year"
+          }
+        }
+      ]
+    },
+    {
+      "key": "pro",
+      "product": {
+        "name": "NEXYRAL Pro",
+        "description": "Pro subscription to NEXYRAL, an AI-assisted frontend source generation workspace.",
+        "tax_category": "saas",
+        "custom_data": {
+          "nexyral_catalog": "sandbox-v1",
+          "plan": "pro"
+        }
+      },
+      "prices": [
+        {
+          "description": "NEXYRAL Pro \u2014 monthly",
+          "billing_cycle": {
+            "interval": "month",
+            "frequency": 1
+          },
+          "trial_period": {
+            "interval": "day",
+            "frequency": 7
+          },
+          "unit_price": {
+            "amount": "1200",
+            "currency_code": "USD"
+          },
+          "unit_price_overrides": [
+            {
+              "country_codes": [
+                "GB"
+              ],
+              "unit_price": {
+                "amount": "900",
+                "currency_code": "GBP"
+              }
+            },
+            {
+              "country_codes": [
+                "IE"
+              ],
+              "unit_price": {
+                "amount": "1000",
+                "currency_code": "EUR"
+              }
+            },
+            {
+              "country_codes": [
+                "AU"
+              ],
+              "unit_price": {
+                "amount": "1600",
+                "currency_code": "AUD"
+              }
+            }
+          ],
+          "tax_mode": "account_setting",
+          "quantity": {
+            "minimum": 1,
+            "maximum": 1
+          },
+          "custom_data": {
+            "nexyral_catalog": "sandbox-v1",
+            "plan": "pro",
+            "interval": "month"
+          }
+        },
+        {
+          "description": "NEXYRAL Pro \u2014 annual",
+          "billing_cycle": {
+            "interval": "year",
+            "frequency": 1
+          },
+          "trial_period": {
+            "interval": "day",
+            "frequency": 7
+          },
+          "unit_price": {
+            "amount": "12000",
+            "currency_code": "USD"
+          },
+          "unit_price_overrides": [
+            {
+              "country_codes": [
+                "GB"
+              ],
+              "unit_price": {
+                "amount": "9000",
+                "currency_code": "GBP"
+              }
+            },
+            {
+              "country_codes": [
+                "IE"
+              ],
+              "unit_price": {
+                "amount": "10000",
+                "currency_code": "EUR"
+              }
+            },
+            {
+              "country_codes": [
+                "AU"
+              ],
+              "unit_price": {
+                "amount": "16000",
+                "currency_code": "AUD"
+              }
+            }
+          ],
+          "tax_mode": "account_setting",
+          "quantity": {
+            "minimum": 1,
+            "maximum": 1
+          },
+          "custom_data": {
+            "nexyral_catalog": "sandbox-v1",
+            "plan": "pro",
+            "interval": "year"
+          }
+        }
+      ]
+    },
+    {
+      "key": "advanced",
+      "product": {
+        "name": "NEXYRAL Advanced",
+        "description": "Advanced subscription to NEXYRAL, an AI-assisted frontend source generation workspace.",
+        "tax_category": "saas",
+        "custom_data": {
+          "nexyral_catalog": "sandbox-v1",
+          "plan": "advanced"
+        }
+      },
+      "prices": [
+        {
+          "description": "NEXYRAL Advanced \u2014 monthly",
+          "billing_cycle": {
+            "interval": "month",
+            "frequency": 1
+          },
+          "trial_period": {
+            "interval": "day",
+            "frequency": 7
+          },
+          "unit_price": {
+            "amount": "2500",
+            "currency_code": "USD"
+          },
+          "unit_price_overrides": [
+            {
+              "country_codes": [
+                "GB"
+              ],
+              "unit_price": {
+                "amount": "1900",
+                "currency_code": "GBP"
+              }
+            },
+            {
+              "country_codes": [
+                "IE"
+              ],
+              "unit_price": {
+                "amount": "2200",
+                "currency_code": "EUR"
+              }
+            },
+            {
+              "country_codes": [
+                "AU"
+              ],
+              "unit_price": {
+                "amount": "3500",
+                "currency_code": "AUD"
+              }
+            }
+          ],
+          "tax_mode": "account_setting",
+          "quantity": {
+            "minimum": 1,
+            "maximum": 1
+          },
+          "custom_data": {
+            "nexyral_catalog": "sandbox-v1",
+            "plan": "advanced",
+            "interval": "month"
+          }
+        },
+        {
+          "description": "NEXYRAL Advanced \u2014 annual",
+          "billing_cycle": {
+            "interval": "year",
+            "frequency": 1
+          },
+          "trial_period": {
+            "interval": "day",
+            "frequency": 7
+          },
+          "unit_price": {
+            "amount": "25000",
+            "currency_code": "USD"
+          },
+          "unit_price_overrides": [
+            {
+              "country_codes": [
+                "GB"
+              ],
+              "unit_price": {
+                "amount": "19000",
+                "currency_code": "GBP"
+              }
+            },
+            {
+              "country_codes": [
+                "IE"
+              ],
+              "unit_price": {
+                "amount": "22000",
+                "currency_code": "EUR"
+              }
+            },
+            {
+              "country_codes": [
+                "AU"
+              ],
+              "unit_price": {
+                "amount": "35000",
+                "currency_code": "AUD"
+              }
+            }
+          ],
+          "tax_mode": "account_setting",
+          "quantity": {
+            "minimum": 1,
+            "maximum": 1
+          },
+          "custom_data": {
+            "nexyral_catalog": "sandbox-v1",
+            "plan": "advanced",
+            "interval": "year"
+          }
+        }
+      ]
+    }
+  ]
+}
