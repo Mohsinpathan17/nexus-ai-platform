@@ -1,3 +1,4 @@
+import WorkspaceInvite from "../sections/WorkspaceInvite/WorkspaceInvite";
 import GettingStarted from "../sections/GettingStarted/GettingStarted";
 import Questions from "../sections/Questions/Questions";
 import Showcase from "../sections/Showcase/Showcase";
@@ -21,6 +22,7 @@ export default function Home() {
       <Hero />
       <GettingStarted />
       <Showcase />
+      <WorkspaceInvite />
       <BuildDemo />
       <Questions />
       <details className="engineering-disclosure">

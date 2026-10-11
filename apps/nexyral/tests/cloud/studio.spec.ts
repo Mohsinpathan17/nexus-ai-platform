@@ -1,9 +1,9 @@
 import { test, expect, type Page } from '@playwright/test';
-async function fixtures(page: Page, initiallyVerified = true) {
+async function fixtures(page: Page, initiallyVerified = true, sourceConflict = false) {
   let verified = initiallyVerified;
   const now = Math.floor(Date.now()/1000);
   const token = `${Buffer.from(JSON.stringify({alg:'none'})).toString('base64url')}.${Buffer.from(JSON.stringify({sub:'fixture-user',user_id:'fixture-user',aud:'nexyral',iss:'https://securetoken.google.com/nexyral',iat:now,exp:now+3600,email:'builder@example.invalid',email_verified:initiallyVerified,firebase:{sign_in_provider:'password'}})).toString('base64url')}.fixture`;
-  const project = {id:'22222222-2222-4222-8222-222222222222',intent:'Build an accessible support interface',status:'draft',source:null as null|{app:string;css:string},error:null as null|string};
+  const project = {id:'22222222-2222-4222-8222-222222222222',intent:'Build an accessible support interface',status:'draft',updated_at:'2026-01-01T00:00:00.000Z',source:null as null|{app:string;css:string},error:null as null|string};
   let fail = true;
   const emailRequests: string[] = [];
   await page.route('**/identitytoolkit.googleapis.com/**', async route => {
@@ -17,6 +17,11 @@ async function fixtures(page: Page, initiallyVerified = true) {
     expect(route.request().headers().authorization).toMatch(/^Bearer /);
     const url = new URL(route.request().url());
     if(url.pathname.includes('/verification/')){if(url.pathname.endsWith('/send'))emailRequests.push('EMAIL_CODE');if(url.pathname.endsWith('/confirm')){if(route.request().postDataJSON().code!=='123456'){await route.fulfill({status:400,json:{error:'That code did not match.'}});return;}verified=true;}await route.fulfill({json:{verified,sent:true}});return;}
+    if (url.pathname.endsWith('/source')) {
+      const payload=route.request().postDataJSON();
+      if(sourceConflict || payload.updatedAt!==project.updated_at){await route.fulfill({status:409,json:{error:'A newer version exists. Download your edits before reopening the project.'}});return;}
+      project.source=payload.source;project.updated_at='2026-01-01T00:00:01.000Z';await route.fulfill({json:{source:project.source,updated_at:project.updated_at}});return;
+    }
     if (url.pathname.endsWith('/generate')) {
       if (fail) { fail=false;project.status='failed';project.error='AI quota reached. Try again later.';await route.fulfill({status:502,json:{error:project.error}});return; }
       project.status='generated';project.error=null;project.source={app:'export default function App() { return <main>Fixture support</main>; }',css:'main {padding: 2rem;}'};
@@ -148,4 +153,12 @@ test('homepage draft reaches the authenticated workspace and clears only after a
  await page.locator('input[name=email]').fill('builder@example.invalid');await page.locator('input[name=password]').fill('password8');await page.getByRole('button',{name:'Sign in',exact:true}).click();
  await expect(page.getByLabel('What should we build?')).toHaveValue('Create a bakery website with a menu and opening hours.');
  await page.getByRole('button',{name:'Save project',exact:true}).click();await expect(page.getByLabel('What should we build?')).toHaveValue('');expect(await page.evaluate(()=>sessionStorage.getItem('nexyral-build-draft'))).toBeNull();
+});
+
+for(const conflict of [false,true])test(`workspace source editing ${conflict?'preserves edits on conflict':'persists after reopening'}`,async({page})=>{
+ await fixtures(page,true,conflict);await page.goto('/login');await page.locator('input[name=email]').fill('builder@example.invalid');await page.locator('input[name=password]').fill('password8');await page.getByRole('button',{name:'Sign in',exact:true}).click();
+ await page.getByLabel('What should we build?').fill('Build an accessible support interface');await page.getByRole('button',{name:'Save project'}).click();await page.getByRole('button',{name:'Generate with Gemini'}).click();await page.getByRole('button',{name:'Retry generation'}).click();
+ await page.getByRole('button',{name:'Edit code',exact:true}).click();const code='export default function App(){return <main>My persisted edit</main>}';await page.getByLabel('Edit App.tsx').fill(code);await page.getByRole('button',{name:'Save changes',exact:true}).click();
+ if(conflict){await expect(page.locator('.cloud-copy-notice')).toContainText('A newer version exists');await expect(page.getByLabel('Edit App.tsx')).toHaveValue(code);await expect(page.locator('.source-save-state')).toHaveText('Unsaved edits');}
+ else{await expect(page.locator('.cloud-copy-notice')).toHaveText('Changes saved to your project.');await expect(page.locator('.source-save-state')).toHaveText('Saved source');await page.getByRole('button',{name:'Sign out',exact:true}).click();await page.locator('input[name=email]').fill('builder@example.invalid');await page.locator('input[name=password]').fill('password8');await page.getByRole('button',{name:'Sign in',exact:true}).click();await page.getByLabel('What should we build?').fill('Build an accessible support interface');await page.getByRole('button',{name:'Save project'}).click();await page.getByRole('button',{name:'Edit code',exact:true}).click();await expect(page.getByLabel('Edit App.tsx')).toHaveValue(code);}
 });

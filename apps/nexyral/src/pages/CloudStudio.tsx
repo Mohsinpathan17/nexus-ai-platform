@@ -69,6 +69,7 @@ export default function CloudStudio() {
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [sourceDirty, setSourceDirty] = useState(false);
   const [selected, setSelected] = useState<Project | null>(null);
   useEffect(() => {
     if (!cloudAuth) return;
@@ -161,6 +162,7 @@ export default function CloudStudio() {
   }
   function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (sourceDirty && !window.confirm("Leave your unsaved source edits? Download or save them first to keep your changes.")) return;
     const submittedIntent = String(new FormData(event.currentTarget).get("intent"));
     void perform(async () => {
       const value = await request<{ id: string }>("/projects", { intent: submittedIntent });
@@ -223,14 +225,13 @@ export default function CloudStudio() {
               : "Intent deserves execution."}
           </h1>
           <p>
-            Save an idea. Generate a React frontend with Gemini. Keep control of
-            the source.
+            Describe your app. Generate with Gemini. Try it, refine it, and keep the source.
           </p>
         </div>
         {user && (
           <button
             className="cloud-action secondary"
-            onClick={() => void perform(() => signOut(auth))}
+            onClick={() => { if (!sourceDirty || window.confirm("Sign out and discard unsaved source edits?")) void perform(() => signOut(auth)); }}
             disabled={busy}
           >
             <LogOut size={17} />
@@ -254,7 +255,7 @@ export default function CloudStudio() {
           <ol className="cloud-stages" aria-label="Project workflow">
             <li><span>01</span><div><strong>Capture intent</strong><small>{selected ? "Project saved" : "Describe your frontend"}</small></div></li>
             <li><span>02</span><div><strong>Generate source</strong><small>{phase === "generating" ? "Gemini is working" : selected?.source ? "Source received" : "Powered by Gemini"}</small></div></li>
-            <li><span>03</span><div><strong>Review & export</strong><small>Build and test locally</small></div></li>
+            <li><span>03</span><div><strong>Try & refine</strong><small>Preview, edit and export</small></div></li>
           </ol>
           <div className="cloud-workbench">
             <aside>
@@ -268,13 +269,14 @@ export default function CloudStudio() {
                   aria-pressed={selected?.id === project.id}
                   disabled={busy}
                   key={project.id}
-                  onClick={() =>
+                  onClick={() => {
+                    if (sourceDirty && !window.confirm("Open another project and discard unsaved source edits?")) return;
                     void perform(async () =>
                       setSelected(
                         await request<Project>(`/projects/${project.id}`),
                       ),
-                    )
-                  }
+                    );
+                  }}
                 >
                   <Code2 size={17} />
                   <span>
@@ -323,7 +325,12 @@ export default function CloudStudio() {
                       {phase === "generating" ? "Generating source…" : awaitingGeneration ? "Generation in progress" : selected.status === "generating" ? "Retry interrupted generation" : selected.status === "failed" ? "Retry generation" : "Generate with Gemini"}
                     </button>
                   ) : (
-                    <SourceOutput key={selected.id} source={selected.source} />
+                    <SourceOutput key={selected.id} source={selected.source} draftKey={`nexyral-source-draft:${user.uid}:${selected.id}`} onDirtyChange={setSourceDirty} onSave={async source => {
+                      const id = selected.id;
+                      const saved = await request<{source: Source; updated_at: string}>(`/projects/${id}/source`, {source, updatedAt: selected.updated_at});
+                      setSelected(current => current?.id === id ? {...current, source: saved.source, updated_at: saved.updated_at} : current);
+                      setProjects(current => current.map(project => project.id === id ? {...project, updated_at: saved.updated_at} : project));
+                    }} />
                   )}
                 </div>
               )}

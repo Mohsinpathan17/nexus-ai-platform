@@ -18,3 +18,15 @@ test('export ZIP extracts with valid CRC and a trusted React fixture typechecks 
     try { execFileSync('npm', ['run', 'build'], { cwd: directory, encoding: 'utf8', stdio: 'pipe' }); } catch (error) { throw new Error(error instanceof Error && 'stdout' in error ? String(error.stdout) : String(error)); }
   } finally { await rm(directory, { recursive: true, force: true }); }
 });
+
+test('the prepared open-workspace starter exports source that typechecks and builds', async () => {
+  const {starterProject}=await import('../../src/lib/starter-project.ts');
+  const directory=await mkdtemp(join(tmpdir(),'nexyral-starter-'));
+  try {
+    const {mkdir}=await import('node:fs/promises');
+    await mkdir(join(directory,'src'));
+    for(const [name,content] of Object.entries(projectFiles(starterProject)))await writeFile(join(directory,name),content);
+    await symlink(join(process.cwd(),'node_modules'),join(directory,'node_modules'),'dir');
+    try {execFileSync('npm',['run','build'],{cwd:directory,encoding:'utf8',stdio:'pipe'});}catch(error){throw new Error(error instanceof Error&&'stdout' in error?String(error.stdout):String(error));}
+  } finally {await rm(directory,{recursive:true,force:true});}
+});

@@ -14,6 +14,7 @@ const groups: Record<string, string[][]> = {
     ["For teams", "solutions"],
   ],
   Resources: [
+    ["Open workspace", "playground"],
     ["Documentation", "docs"],
     ["Status", "status"],
   ],

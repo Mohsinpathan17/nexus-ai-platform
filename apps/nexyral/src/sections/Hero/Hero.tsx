@@ -30,7 +30,7 @@ export default function Hero() {
           </h1>
           <p>
             Tell NEXYRAL what you want to make. It creates the screens and code
-            for a web app, ready for you to review and download.
+            for a web app. Try it in your browser, refine it, and keep the source.
           </p>
           <div className="hero-buttons">
             <a className="button" href="#start">Describe your app <ArrowUpRight size={17}/></a>
@@ -63,7 +63,7 @@ export default function Hero() {
         </div>
       </div>
       <div className="hero-bottom">
-        <span>DESCRIBE → GENERATE → REVIEW</span>
+        <span>DESCRIBE → GENERATE → TRY</span>
         <a href="#start" aria-label="Start describing an app">
           <ArrowDown size={16} />
         </a>

@@ -1,3 +1,5 @@
+import CloudStatus from "../components/ui/CloudStatus";
+import WorkspaceInvite from "../sections/WorkspaceInvite/WorkspaceInvite";
 import { useLocation, Link } from "react-router-dom";
 import { Button } from "../components/ui/Primitives";
 import Workspace from "../sections/Product/Workspace";
@@ -56,7 +58,16 @@ const content: Record<string, { title: string; intro: string }> = {
 };
 export default function ContentPage() {
   const key = useLocation().pathname.replace(/^\/+|\/+$/g, "");
-  const page = content[key];
+  const cloud = import.meta.env.VITE_SERVERLESS === "1";
+  const cloudContent: typeof content = {
+    product: {title:"Your idea, made tangible.",intro:"Describe a web app, generate React code with Gemini, and try it in an isolated browser preview. Refine the source, save your changes, and export the project."},
+    "how-it-works": {title:"Describe. Try. Make it yours.",intro:"Start with one clear idea. Your account keeps the project; Gemini creates the frontend; you decide what to change and keep."},
+    features: {title:"Tools you can use today.",intro:"AI frontend generation, interactive React previews, a source editor, cloud project saving, tab draft recovery, and a downloadable project. Automated backend engineering and deployment are still ahead."},
+    docs: {title:"Your first app, step by step.",intro:"A practical guide to creating an account, generating your app, using the preview, editing your files, and keeping the project."},
+    status: {title:"Check the current service.",intro:"Live configuration from the serverless API. Provider configuration is separate from provider availability, and a preview is separate from a verified production build."},
+    contact: {title:"Let’s make it better.",intro:"Report a problem or share feedback. Public issues are for non-sensitive reports; never include passwords, verification codes, or private project source."},
+  };
+  const page = cloud && cloudContent[key] ? cloudContent[key] : content[key];
   const providers = useProviders();
   return (
     <>
@@ -73,13 +84,13 @@ export default function ContentPage() {
           </Link>
         </div>
       </section>
-      {key === "product" && <Workspace />}
-      {key === "how-it-works" && <Workflow />}
-      {key === "features" && <Features />}
+      {key === "product" && (cloud ? <WorkspaceInvite /> : <Workspace />)}
+      {key === "how-it-works" && (cloud ? <GettingStartedGuide /> : <Workflow />)}
+      {key === "features" && (cloud ? <section className="route-articles container">{[["AI-generated React","Save your idea and explicitly ask Gemini to create the frontend."],["Interactive preview","Run your app in an isolated frame with phone and desktop views."],["Edit and save","Change the code, preview changes, and save to your account with stale-write protection."],["Recover and export","Recover unsaved edits in the same browser tab and download a React + TypeScript project."]].map(([title,text])=><article key={title}><h2>{title}</h2><p>{text}</p></article>)}</section> : <Features />)}
       {key === "solutions" && <Solutions />}
       {key === "pricing" && <Pricing />}
       {key === "docs" && <GettingStartedGuide />}
-      {key === "contact" && <section className="route-articles container"><article><h2>Contact support.</h2>{providers.supportEmail ? <a href={`mailto:${providers.supportEmail}`}>{providers.supportEmail}</a> : <p>A support inbox has not been configured on this deployment.</p>}</article></section>}
+      {key === "contact" && <section className="route-articles container"><article><h2>Contact support.</h2>{providers.supportEmail ? <a href={`mailto:${providers.supportEmail}`}>{providers.supportEmail}</a> : <p>For non-sensitive feedback, <a href="https://github.com/Mohsinpathan17/nexus-ai-platform/issues" target="_blank" rel="noopener noreferrer">open a GitHub issue</a>. A private support inbox has not been configured.</p>}</article></section>}
       {key === "about" && (
         <section className="route-articles container">
           <article>
@@ -122,7 +133,8 @@ export default function ContentPage() {
           </Button>
         </section>
       )}
-      {key === "status" && (
+      {key === "status" && cloud && <CloudStatus />}
+      {key === "status" && !cloud && (
         <section className="status-ledger container">
           {[
             ["Website preview", "Available in this build"],

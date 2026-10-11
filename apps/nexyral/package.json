@@ -36,7 +36,8 @@
     "test:cloud:ui": "playwright test --config playwright.cloud.config.ts",
     "test:export": "node --test tests/cloud/export.test.ts",
     "package:focus": "node scripts/package-focus-example.ts",
-    "test:showcase:live": "node --use-env-proxy scripts/check-public-examples.mjs"
+    "test:showcase:live": "node --use-env-proxy scripts/check-public-examples.mjs",
+    "test:preview:live": "node --use-env-proxy scripts/check-preview-live.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
@@ -49,6 +50,7 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.4",
+    "sucrase": "^3.35.1",
     "tailwindcss": "^4.3.3",
     "three": "^0.186.1"
   },

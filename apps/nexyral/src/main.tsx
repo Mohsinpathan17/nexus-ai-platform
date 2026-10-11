@@ -17,6 +17,7 @@ import "./styles/pricing.css";
 import "./styles/showcase.css";
 import "./styles/refinement.css";
 import "./styles/clarity.css";
+import "./styles/preview.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>

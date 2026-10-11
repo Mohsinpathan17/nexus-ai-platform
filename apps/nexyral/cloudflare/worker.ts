@@ -1,6 +1,6 @@
 import { publicExampleRequest } from "./public-examples.ts";
 import { authenticate } from "./auth.ts";
-import { generate } from "./gemini.ts";
+import { generate, validateSource } from "./gemini.ts";
 import { addressVerified, emailCodeRequest } from './email-codes.ts';
 export interface Env {
   ASSETS: Fetcher;
@@ -22,7 +22,7 @@ function json(value: unknown, status = 200) {
     },
   });
 }
-async function readBody(request: Request): Promise<string> {
+async function readBody(request: Request, limit = 12000): Promise<string> {
   const reader = request.body?.getReader();
   if (!reader) return "";
   const decoder = new TextDecoder();
@@ -33,7 +33,7 @@ async function readBody(request: Request): Promise<string> {
       const { value, done } = await reader.read();
       if (done) break;
       size += value.byteLength;
-      if (size > 12000) {
+      if (size > limit) {
         await reader.cancel();
         throw new RangeError("Request too large");
       }
@@ -123,7 +123,7 @@ export default {
         return json({ id }, 201);
       }
       const match = url.pathname.match(
-        /^\/api\/cloud\/projects\/([a-f0-9-]{36})(\/generate)?$/,
+        /^\/api\/cloud\/projects\/([a-f0-9-]{36})(\/(?:generate|source))?$/,
       );
       if (!match) return json({ error: "Not found" }, 404);
       const project = await env.DB.prepare(
@@ -144,7 +144,25 @@ export default {
           source: project.source ? JSON.parse(project.source) : null,
           verification: "not_run",
         });
-      if (match[2] && request.method === "POST") {
+      if (match[2] === "/source" && request.method === "POST") {
+        if (!request.headers.get("Content-Type")?.startsWith("application/json")) return json({ error: "JSON required" }, 415);
+        let body: { source?: unknown; updatedAt?: unknown };
+        let source;
+        try {
+          body = JSON.parse(await readBody(request, 120000));
+          source = validateSource(body?.source);
+        } catch (error) {
+          return json({ error: error instanceof RangeError ? "Request too large" : "Source must contain a default React export and stay within the file limits" }, error instanceof RangeError ? 413 : 400);
+        }
+        if (project.status !== "generated" || !project.source) return json({ error: "Generate the project before editing its source" }, 409);
+        if (body.updatedAt !== project.updated_at) return json({ error: "A newer version exists. Download your edits before reopening the project; your changes have not been overwritten." }, 409);
+        const updatedAt = new Date(Math.max(Date.now(), Date.parse(project.updated_at) + 1)).toISOString();
+        const saved = await env.DB.prepare("UPDATE projects SET source=?,updated_at=? WHERE id=? AND owner_id=? AND status='generated' AND updated_at=?")
+          .bind(JSON.stringify(source), updatedAt, project.id, user.sub, project.updated_at).run();
+        if (!saved.meta.changes) return json({ error: "A newer version exists. Download your edits before reopening the project." }, 409);
+        return json({ source, updated_at: updatedAt, verification: "not_run" });
+      }
+      if (match[2] === "/generate" && request.method === "POST") {
         if (!(await addressVerified(env,user)))
           return json(
             { error: "Verify your email before generating software" },

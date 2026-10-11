@@ -16,6 +16,8 @@ const RunPage = lazy(() => import("../pages/workspace/RunPage"));
 import FocusExample from "../pages/FocusExample";
 import PlannedPage from "../pages/PlannedPage";
 const EmailAction = lazy(() => import("../pages/EmailAction"));
+const PolicyPage = lazy(() => import("../pages/PolicyPage"));
+const Playground = lazy(() => import("../pages/Playground"));
 const CloudStudio = lazy(() => import("../pages/CloudStudio"));
 export default function App() {
   const location = useLocation();
@@ -105,6 +107,9 @@ export default function App() {
         >
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/privacy" element={<PolicyPage />} />
+            <Route path="/terms" element={<PolicyPage />} />
+            <Route path="/playground" element={<Playground />} />
             <Route path="/examples/focus" element={<FocusExample />} />
             <Route path="/recover" element={<RecoverPage />} />
             <Route path="/verify-email" element={<VerifyEmailPage />} />

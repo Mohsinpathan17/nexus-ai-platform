@@ -1,0 +1,19 @@
+import { Link, useLocation } from 'react-router-dom';
+const privacy = [
+ ['Account and project data','Firebase Authentication manages sign-in. The server verifies your identity before loading your projects. Project descriptions and generated source are stored in Cloudflare D1 under your account identifier. Verification codes are hashed, expire, and are delivered through Resend.'],
+ ['AI processing','When you request generation, your project description is sent to Google Gemini. Do not include passwords, access tokens, payment information, or sensitive personal data in prompts. Google’s applicable service terms govern its processing; NEXYRAL cannot promise that a free model tier has enterprise privacy controls.'],
+ ['Browser storage and previews','Theme preferences are stored in your browser. Draft ideas and unsaved source edits are kept in session storage for recovery in the same tab. The prepared public task example uses local storage for its task data. Generated React previews run in sandboxed frames with account access restricted and external resource requests blocked by their content policy.'],
+ ['Public examples','The three AI-generated showcase apps are shared examples, not private user projects. Their source and generation metadata are public. Using their sample data does not send a new prompt to the AI provider.'],
+ ['Your choices','You can download your project source and clear browser storage. Account and project deletion controls are not yet self-service. Use the contact page for help; never post private project details or credentials in a public issue. Infrastructure providers may keep operational logs under their own policies. A detailed retention schedule has not yet been published.'],
+];
+const terms = [
+ ['Early access','NEXYRAL currently generates frontend source and provides browser previews, source editing, cloud project storage, and exports. It is an early-access service with provider quotas and shared capacity. It does not currently provide automated production builds, verification, backend generation, or deployment of your generated app.'],
+ ['Review what you generate','AI output can be incomplete or incorrect. A running browser preview is not proof of type safety, accessibility, security, or production readiness. Review and test the source before using it for a business or deploying it to users.'],
+ ['Responsible use','Use the service only for projects you are authorized to create. Keep credentials and sensitive information out of descriptions and generated source. Do not use the platform to access other accounts, distribute malware, or circumvent service safeguards.'],
+ ['Export and dependencies','You can download generated source and your edited files. Third-party dependencies retain their own licenses. AI output may need review for third-party rights; no exclusivity or intellectual-property clearance is guaranteed.'],
+ ['Free access and availability','There is no paid subscription or checkout currently enabled. Free access is subject to service capacity and provider availability. Future commercial terms will need to be announced separately; the current site does not guarantee uninterrupted operation or a financial outcome.'],
+];
+export default function PolicyPage() {
+  const isPrivacy=useLocation().pathname==='/privacy';
+  return <><section className="route-intro container"><span className="eyebrow">NEXYRAL / EARLY ACCESS</span><h1>{isPrivacy?'How your data is used.':'Clear expectations.'}</h1><p>{isPrivacy?'A plain-language explanation of the current service and its data flows.':'What the current product provides, and what to review before using its output.'}</p><Link className="text-button" to="/contact">Contact and support →</Link></section><section className="route-articles container">{(isPrivacy?privacy:terms).map(([title,text])=><article key={title}><h2>{title}</h2><p>{text}</p></article>)}</section></>;
+}

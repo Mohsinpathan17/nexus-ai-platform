@@ -405,3 +405,24 @@ test('three failed public builds exhaust the per-example retry cap',async()=>{
  try{for(let attempt=0;attempt<3;attempt++)assert.equal((await worker.fetch(request(),env)).status,502);assert.equal((await worker.fetch(request(),env)).status,409);assert.equal(calls,3);}
  finally{globalThis.fetch=original;db.close();}
 });
+
+test('source edits persist with ownership, size validation and optimistic conflict protection, without inference', async () => {
+  const {db,binding}=database();
+  const env={DB:binding,FIREBASE_PROJECT_ID:'test-project'} as Env;
+  const jwt=await token();await authenticate(request('/',jwt),'test-project',jwksFetch);
+  const id='44444444-4444-4444-8444-444444444444';
+  const original={app:'export default function App(){return <main>Original</main>}',css:''};
+  db.prepare("INSERT INTO projects(id,owner_id,intent,status,source,created_at,updated_at) VALUES(?,?,?,'generated',?,?,?)").run(id,'owner-a','Edit my existing frontend',JSON.stringify(original),'2026-01-01T00:00:00.000Z','2026-01-01T00:00:00.000Z');
+  const source={app:'export default function App(){return <main>Edited</main>}',css:'main{color:navy}'};
+  const payload={source,updatedAt:'2026-01-01T00:00:00.000Z'};
+  try {
+    assert.equal((await worker.fetch(request(`/api/cloud/projects/${id}/source`,await token({sub:'other-owner'}),payload),env)).status,404);
+    assert.equal((await worker.fetch(request(`/api/cloud/projects/${id}/source`,jwt,{...payload,source:{app:'invalid',css:''}}),env)).status,400);
+    assert.equal((await worker.fetch(request(`/api/cloud/projects/${id}/source`,jwt,{...payload,source:{app:'x'.repeat(130000),css:''}}),env)).status,413);
+    const saved=await worker.fetch(request(`/api/cloud/projects/${id}/source`,jwt,payload),env);assert.equal(saved.status,200);
+    const result=await saved.json() as {source:typeof source;updated_at:string};assert.deepEqual(result.source,source);
+    assert.equal((await worker.fetch(request(`/api/cloud/projects/${id}/source`,jwt,payload),env)).status,409);
+    const read=await worker.fetch(request(`/api/cloud/projects/${id}`,jwt),env);assert.deepEqual((await read.json() as {source:typeof source}).source,source);
+    assert.equal(db.prepare('SELECT count(*) as count FROM generation_usage').get()?.count,0);
+  } finally {db.close();}
+});

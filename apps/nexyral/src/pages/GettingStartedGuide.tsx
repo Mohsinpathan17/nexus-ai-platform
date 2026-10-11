@@ -8,10 +8,10 @@ const steps = [
   { label: "05 / NEXT ATTEMPT", title: "Keep failures inspectable.", copy: "A failed or cancelled run can be retried with a reviewed intent. It retains the original captured requirements, creates separate evidence and needs fresh approval. Create a normal new run if you want to use an updated project brief." },
 ];
 const cloudSteps = [
-  { label: "01 / YOUR ACCOUNT", title: "Create and verify your account.", copy: "Sign up with email, open the verification email and confirm your address before requesting AI generation. If your deployment offers GitHub sign-in, you can use it to authenticate; repository access is a separate capability." },
+  { label: "01 / YOUR ACCOUNT", title: "Create and verify your account.", copy: "Sign up with email and enter the six-digit verification code sent to your inbox before requesting AI generation. Google sign-in is also available. If your deployment offers GitHub sign-in, you can use it to authenticate; repository access is a separate capability." },
   { label: "02 / RECORD INTENT", title: "Describe one clear interface.", copy: "Save the people, behavior and constraints your interface needs to support. Start with a small React frontend. Authentication backends, database services and production deployment are outside the generated source scope." },
   { label: "03 / GENERATE SOURCE", title: "Give your idea to Gemini.", copy: "Select a saved project and explicitly request generation. Keep the tab open while the model responds. Provider quotas and a daily deployment budget apply; failed requests remain visible and can be retried." },
-  { label: "04 / HUMAN REVIEW", title: "Generated does not mean verified.", copy: "Inspect and download App.tsx and styles.css. This workspace displays source without executing it. Type checking, build, tests, security review and deployment have not run. Review the code before running it in an isolated development environment." },
+  { label: "04 / HUMAN REVIEW", title: "Generated does not mean verified.", copy: "Choose Run preview to execute the React frontend in an isolated browser frame. Try its controls, check phone and desktop layouts, and edit App.tsx or styles.css. Preview changes explicitly, then save them to your project. A stale save is rejected instead of overwriting a newer version. Download the project to run type checking and a production build locally; automated tests and deployment have not run." },
 ];
 export default function GettingStartedGuide() {
   const cloud = import.meta.env.VITE_SERVERLESS === "1";
