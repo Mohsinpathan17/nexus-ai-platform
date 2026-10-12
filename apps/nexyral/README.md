@@ -2,7 +2,11 @@
 
 ## Public serverless application
 
-Live at **https://nexyral.online**. The Cloudflare Worker serves the React website and a D1-backed workspace with Firebase email/password and Google authentication, Gemini frontend source generation, ZIP export, and six-digit email verification through Resend (requires a verified sending domain). GitHub sign-in is optional and requires separate provider configuration. Generated source is explicitly unverified; this serverless version does not build, test or deploy generated projects.
+Live at **[nexyral.online](https://nexyral.online)**. [Try the open workspace](https://nexyral.online/playground) or [sign in to build](https://nexyral.online/workspace).
+
+The Cloudflare Worker serves the React website and a D1-backed workspace with Firebase accounts, AI frontend generation and revisions, saved-version recovery, interactive previews, ZIP export, NEXYRAL Guide, and branded six-digit verification emails. GitHub sign-in is optional and requires separate provider configuration. See the root [repository overview](../../README.md) for desktop and mobile screenshots.
+
+Generated projects still require engineering review and local build/test checks before release; this serverless version does not build, test or deploy generated projects.
 
 Start with [serverless configuration](docs/FREE_SERVERLESS.md) and [email-code setup](docs/EMAIL_CODE_SETUP.md). Supply your own public Firebase web configuration using `.env.example`; keep Gemini and Resend keys and the email-code hashing secret in encrypted Worker secrets. The checked-in Cloudflare configuration identifies the existing NEXYRAL deployment; use your own account/database/domain settings for an independent deployment. Never commit credentials or local databases.
 

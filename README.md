@@ -1,10 +1,48 @@
-# NEXUS — Autonomous AI Software Engineering & Operations Platform
+# NEXYRAL
 
-## NEXYRAL public application
+**From Intent to Execution.**
 
-The NEXYRAL implementation is in [`apps/nexyral`](apps/nexyral). Live website: **https://nexyral.online**. It includes the React/TypeScript website, interactive 3D Core, Cloudflare serverless workspace, Firebase accounts, Gemini frontend source generation, and branded six-digit email verification through Resend. See the [application README](apps/nexyral/README.md), [serverless setup](apps/nexyral/docs/FREE_SERVERLESS.md), and [email configuration](apps/nexyral/docs/EMAIL_CODE_SETUP.md). API keys, databases and local build/test artifacts are excluded from Git.
+Describe a web app in plain language, generate its frontend, try it in your browser, and refine it with AI. This repository contains the NEXYRAL website and serverless workspace.
 
-The original NEXUS prototype is described below.
+### Visit NEXYRAL
+
+**[Open the live website →](https://nexyral.online)**
+
+[Try the interactive workspace](https://nexyral.online/playground) · [Start building](https://nexyral.online/workspace) · [Documentation](https://nexyral.online/docs)
+
+[![NEXYRAL live website on desktop](docs/assets/nexyral-home-desktop.png)](https://nexyral.online)
+
+<details>
+<summary>See the mobile website</summary>
+
+[![NEXYRAL live website on mobile](docs/assets/nexyral-home-mobile.png)](https://nexyral.online)
+
+</details>
+
+### What you can do
+
+- Describe an app and generate React frontend source.
+- Try interactive previews in desktop and phone layouts.
+- Ask AI to change an existing app, edit code, and export a project ZIP.
+- Recover the last ten saved source versions.
+- Use NEXYRAL Guide for product help and app-request drafting.
+
+The live service is hosted on Cloudflare at **nexyral.online**. GitHub contains its source code and documentation.
+
+### Explore the source
+
+The active application is in **[`apps/nexyral`](apps/nexyral)**. It uses React, TypeScript, Vite, Tailwind CSS, React Three Fiber and a Cloudflare Worker/D1 backend with Firebase authentication.
+
+[Application setup](apps/nexyral/README.md) · [Serverless configuration](apps/nexyral/docs/FREE_SERVERLESS.md) · [Latest implementation report](apps/nexyral/docs/NEXYRAL_GUIDE_REPORT.md)
+
+API keys, local databases, installed dependencies and generated test/build artifacts stay out of Git. Frontend generation is available; generated backend services, automated verification and deployment are future capabilities. See the application documentation for current limits.
+
+Maintained by **[Mohsinpathan17](https://github.com/Mohsinpathan17)**.
+
+---
+
+<details>
+<summary>Original NEXUS prototype documentation</summary>
 
 NEXUS is a portfolio-grade prototype of an AI control plane for software engineering and operations.
 
@@ -140,3 +178,5 @@ make docker-up
 8. Real GitHub PR creation
 9. Benchmark runner
 10. Staging deployment with approval gate
+
+</details>
