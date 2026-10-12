@@ -38,3 +38,9 @@ No dependencies added. Existing lazy 3D chunk size advisory remains. Real signed
 Removed underlying model branding from Guide labels, workspace controls/status, the refinement panel, public example provenance, product pages, documentation, privacy text and walkthrough captions. Privacy text still discloses external AI processing. Internal provider credentials and API routing remain intact.
 
 Re-recorded the 30-second walkthrough with the current interface; example account/output labels remain. Build and lint passed, along with 21 backend tests and 15 affected browser cases. Production checks found no provider name in rendered homepage, Product, How It Works, Features, Documentation, Privacy, Workspace and Guide text. Published video and caption bytes matched the new assets. Deployment version: `6d3d5dfa-a6ca-41d8-b7d8-499c9e87314d`.
+
+## Interface cleanup — 12 October 2026
+
+Removed persistent technical footnotes from app previews and exports, simplified project success/status copy and public example captions, and replaced the prominent open-workspace caveat with an optional starter disclosure. Preview/export guidance is available in a closed details panel; documentation retains the technical limitations. Preview isolation and actual verification behavior are unchanged.
+
+Lint and production build passed. Seventeen affected workflow/browser tests passed, followed by six final playground checks at 375, 768 and 1440px across both themes. The public preview interaction/edit/export checks passed at 390 and 1440px in both themes, with no browser errors or page overflow. The walkthrough video was refreshed and remains 30 seconds. Deployment version: `ee7c33d2-6253-4bce-af17-f7cff469140b`.

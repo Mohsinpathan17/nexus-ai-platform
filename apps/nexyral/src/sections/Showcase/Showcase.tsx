@@ -54,7 +54,7 @@ export default function Showcase() {
         <span className="eyebrow">THE REQUEST</span><h3>{example.title}</h3><p>{example.description}</p>
         <details><summary>Read the exact AI brief</summary><p>{example.brief}</p></details>
         <div className="live-provenance"><span className="eyebrow">BUILD RECORD</span>
-          {result ? <><strong>{fresh ? 'Generated just now' : 'Saved AI build'}</strong><span>NEXYRAL AI</span><time dateTime={result.generatedAt}>{new Date(result.generatedAt).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'})}</time><p>Generated with NEXYRAL AI. Frontend only; sample data, no connected backend.</p></> : <p>The first visitor’s build is saved so everyone can use it without repeating the AI request.</p>}
+          {result ? <><strong>{fresh ? 'Generated just now' : 'Saved AI build'}</strong><span>NEXYRAL AI</span><time dateTime={result.generatedAt}>{new Date(result.generatedAt).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'})}</time><p>An example app created with NEXYRAL AI. Explore it and make the idea your own.</p></> : <p>The first visitor’s build is saved so everyone can use it without repeating the AI request.</p>}
         </div>
         <Link to="/get-started" className="live-custom-link">Now build your own idea <ArrowUpRight size={17}/></Link>
       </aside>
@@ -66,7 +66,7 @@ export default function Showcase() {
           <p role="status">{error || (status==='building' ? 'This is a real AI request. We’ll show the app when the provider returns complete code.' : status==='loading' ? 'Looking for a saved AI build.' : 'Start a real build of this brief, then try the result here.')}</p>
           {!['loading','building'].includes(status) && <button className="button button-primary" onClick={()=>void build()}>{status==='error' ? <RefreshCw size={17}/> : <Play size={17}/>} {status==='error' ? 'Try again' : 'Build this example'}</button>}
         </div>}
-        <div className="live-app-foot">{result ? 'Try the controls above · Code runs in an isolated browser preview' : 'No simulated build logs · Shared free-tier AI budget applies'}</div>
+        <div className="live-app-foot">{result ? 'Explore this app, then start your own.' : 'Your app will appear here.'}</div>
       </div>
     </div>
   </StorySection>;

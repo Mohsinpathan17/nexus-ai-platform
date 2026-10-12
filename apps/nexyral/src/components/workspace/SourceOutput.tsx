@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Check, Copy, Download, FileCode2, PackageCheck, Eye, Code2, Save, Undo2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import RefinementPanel, { type SourceOperations } from './RefinementPanel';
 import { exportProject, type ProjectSource } from '../../lib/project-export';
 const ReactPreview = lazy(() => import('../preview/ReactPreview'));
@@ -95,7 +96,7 @@ export default function SourceOutput({ source, onSave, onDirtyChange, draftKey, 
     </div>}
     {operations && <RefinementPanel operations={operations} dirty={dirty} onBusy={setSaving} onApplied={next => {forgetDraft();setDraft(next);setPreview(next);setView('preview');setNotice('');}}/>}
     </div>
-    <p className="cloud-evidence">Export includes the files currently in the editor. Build and tests not run · Review before production use.</p>
+    <details className="source-details"><summary>Preview and export details</summary><p>The preview runs in your browser. Your download includes the code currently in the editor. Review and test your project before deploying it.</p><Link to="/docs">Read the project guide →</Link></details>
     <p className="cloud-copy-notice" role="status">{notice}</p>
   </div>;
 }

@@ -206,7 +206,7 @@ export default function CloudStudio() {
           project.id === id ? { ...project, status: "generated" } : project,
         ),
       );
-    }, "Source generated. Build, tests and deployment have not run.");
+    }, "Your app is ready to preview.");
     setPhase("idle");
     try {
       const project = await request<Project>(`/projects/${id}`);
@@ -340,10 +340,7 @@ export default function CloudStudio() {
                 <div className="cloud-output">
                   <h2>{selected.intent}</h2>
                   {phase === "generating" && <div className="cloud-generation-state" role="status"><span className="cloud-pulse" /><span>Generating with NEXYRAL AI. Your project is saved; source appears when the response completes.</span></div>}
-                  <p>
-                    Frontend source generation · React + TypeScript · No backend
-                    or deployment implied.
-                  </p>
+                  <p>Preview, refine and make it yours.</p>
                   {selected.status === "generating" && selected.source && !busy && <p className="cloud-generation-state" role="status">An AI change is in progress. Your last saved app remains available while it completes.</p>}
                   {selected.error && <p className="cloud-run-error" role="alert">{selected.error}</p>}
                   {!selected.source ? (
