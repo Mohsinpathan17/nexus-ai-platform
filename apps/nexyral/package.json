@@ -38,6 +38,7 @@
     "package:focus": "node scripts/package-focus-example.ts",
     "test:showcase:live": "node --use-env-proxy scripts/check-public-examples.mjs",
     "test:preview:live": "node --use-env-proxy scripts/check-preview-live.mjs",
+    "test:guide:live": "node --use-env-proxy scripts/check-guide-live.mjs",
     "test:dimensional:live": "node --use-env-proxy scripts/check-dimensional-live.mjs"
   },
   "dependencies": {

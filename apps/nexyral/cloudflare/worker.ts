@@ -1,3 +1,4 @@
+import { guideRequest } from "./guide.ts";
 import { commitSource, revisionRequest } from "./project-revisions.ts";
 import { publicExampleRequest } from "./public-examples.ts";
 import { authenticate } from "./auth.ts";
@@ -10,6 +11,7 @@ export interface Env {
   GEMINI_API_KEY: string;
   GEMINI_MODEL: string;
   DAILY_GENERATION_LIMIT: string;
+  DAILY_GUIDE_LIMIT?: string;
   RESEND_API_KEY?: string;
   EMAIL_CODE_SECRET?: string;
 }
@@ -73,6 +75,12 @@ export default {
       return json({ error: "Sign in to continue" }, 401);
     }
     try {
+      if (url.pathname === '/api/cloud/guide' && request.method === 'POST') {
+        if (!request.headers.get('Content-Type')?.startsWith('application/json')) return json({error:'JSON required'},415);
+        let raw: string;
+        try { raw = await readBody(request,24000); } catch { return json({error:'Request too large'},413); }
+        return await guideRequest(env,user.sub,raw);
+      }
       if (/^\/api\/cloud\/verification\/(status|send|confirm)$/.test(url.pathname)) {
         if (request.method === 'POST' && !request.headers.get('Content-Type')?.startsWith('application/json')) return json({error:'JSON required'},415);
         return await emailCodeRequest(request,env,user,request.method==='POST'?await readBody(request):'');

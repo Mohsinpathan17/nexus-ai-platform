@@ -64,5 +64,5 @@ test('unsaved edits recover after a tab reload and discarded edits restore the o
 test('status reports actual configuration, recovers from failures, and public policy pages are readable',async({page})=>{
  let fail=true;await page.route('**/api/health',route=>route.fulfill({status:fail?503:200,json:fail?{error:'Unavailable'}:{status:'ok',generationConfigured:true,emailCodeDeliveryConfigured:true}}));
  await page.goto('/status');await expect(page.getByRole('status')).toContainText('Service check failed');fail=false;await page.getByRole('button',{name:'Check again'}).click();await expect(page.getByRole('status')).toContainText('Current configuration received');await expect(page.getByText('Configured · subject to provider availability')).toBeVisible();
- for(const route of ['/privacy','/terms']){await page.goto(route);await expect(page.locator('main h1')).toBeVisible();await expect(page.locator('.route-articles article')).toHaveCount(5);}
+ for(const route of ['/privacy','/terms']){await page.goto(route);await expect(page.locator('main h1')).toBeVisible();await expect(page.locator('.route-articles article')).toHaveCount(route==='/privacy'?6:5);if(route==='/privacy')await expect(page.getByRole('heading',{name:'NEXYRAL Guide',exact:true})).toBeVisible();}
 });

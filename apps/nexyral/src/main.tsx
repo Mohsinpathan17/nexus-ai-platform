@@ -1,4 +1,5 @@
 import React from "react";
+import GuideHost from "./components/guide/GuideHost";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { MotionConfig } from "framer-motion";
@@ -20,13 +21,15 @@ import "./styles/clarity.css";
 import "./styles/preview.css";
 import "./styles/refinement-studio.css";
 import "./styles/dimensional.css";
+import "./styles/guide.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
       <ThemeProvider>
         <MotionConfig reducedMotion="user">
           <AuthProvider>
-            <App />
+            <div id="nexyral-app"><App /></div>
+            <GuideHost />
           </AuthProvider>
         </MotionConfig>
       </ThemeProvider>

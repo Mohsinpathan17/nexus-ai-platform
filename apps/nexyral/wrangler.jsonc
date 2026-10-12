@@ -23,7 +23,8 @@
   "vars": {
     "FIREBASE_PROJECT_ID": "nexyral",
     "GEMINI_MODEL": "gemini-3.5-flash-lite",
-    "DAILY_GENERATION_LIMIT": "10"
+    "DAILY_GENERATION_LIMIT": "10",
+    "DAILY_GUIDE_LIMIT": "50"
   },
   "observability": {
     "enabled": false

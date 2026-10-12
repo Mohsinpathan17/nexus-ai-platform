@@ -68,6 +68,7 @@ function database() {
   db.exec(readFileSync(new URL('./migrations/0002_email_codes.sql',import.meta.url),'utf8'));
   db.exec(readFileSync(new URL("./migrations/0003_public_examples.sql",import.meta.url),"utf8"));
   db.exec(readFileSync(new URL('./migrations/0004_project_versions.sql',import.meta.url),'utf8'));
+  db.exec(readFileSync(new URL('./migrations/0005_guide_usage.sql',import.meta.url),'utf8'));
   const adapter = {
     async batch(statements: {run:()=>Promise<unknown>}[]) {
       db.exec('BEGIN');
@@ -474,3 +475,23 @@ test('an in-flight AI revision cannot duplicate inference or overwrite a newer l
   assert.equal((await worker.fetch(request(`/api/cloud/projects/${id}/refine`,jwt,{instruction:'Change color',updatedAt:stale}),env)).status,409);assert.equal(calls,1);assert.deepEqual(JSON.parse(String(db.prepare('SELECT source FROM projects WHERE id=?').get(id)!.source)),source);assert.equal(db.prepare('SELECT count(*) as count FROM project_versions').get()?.count,0);
  }finally{globalThis.fetch=original;db.close();}
 });
+
+ test('Guide validates conversation, isolates quota, grounds AI and handles failure', async()=>{
+ const {guideRequest}=await import('./guide.ts');const {db,binding}=database();
+ const env={DB:binding,GEMINI_API_KEY:'fixture',GEMINI_MODEL:'fixture-model',DAILY_GUIDE_LIMIT:'2'} as Env;
+ let calls=0;const fetcher:typeof fetch=async(_url,init)=>{calls++;const payload=JSON.parse(String(init?.body));assert.match(payload.systemInstruction.parts[0].text,/production deployment are not available/);assert.match(payload.contents[0].parts[0].text,/booking/);return Response.json({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({answer:'Start with a booking calendar.',draft:'Build a responsive booking calendar with local state.'})}]}}]});};
+ const raw=JSON.stringify({messages:[{role:'user',text:'Help me plan a booking app'}]});
+ try{
+ assert.equal((await guideRequest(env,'a','{}',fetcher)).status,400);
+ assert.equal((await guideRequest(env,'a',JSON.stringify({messages:[{role:'model',text:'bad'}]}),fetcher)).status,400);
+ const answer=await guideRequest(env,'a',raw,fetcher);assert.equal(answer.status,200);assert.match((await answer.json() as {draft:string}).draft,/booking calendar/);
+ assert.equal((await guideRequest(env,'b',raw,async()=>new Response('',{status:429}))).status,502);
+ assert.equal((await guideRequest(env,'a',raw,fetcher)).status,429);assert.equal(calls,1);
+ assert.equal(db.prepare('SELECT COUNT(*) AS n FROM projects').get()!.n,0);
+ assert.equal((await guideRequest({...env,DAILY_GUIDE_LIMIT:undefined},'a',raw,fetcher)).status,503);
+ const expanded={...env,DAILY_GUIDE_LIMIT:'50'};
+ for(let i=0;i<8;i++)assert.equal((await guideRequest(expanded,'a',raw,fetcher)).status,200);
+ assert.equal((await guideRequest(expanded,'a',raw,fetcher)).status,429);assert.equal(calls,9);
+ assert.equal((await guideRequest(expanded,'c',raw,async()=>Response.json({candidates:[{finishReason:'MAX_TOKENS'}]}))).status,502);
+ }finally{db.close();}
+ });

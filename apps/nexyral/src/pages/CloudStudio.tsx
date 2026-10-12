@@ -73,6 +73,18 @@ export default function CloudStudio() {
   const [sourceDirty, setSourceDirty] = useState(false);
   const [selected, setSelected] = useState<Project | null>(null);
   useEffect(() => {
+    const incoming = (location.state as {guideDraft?: unknown} | null)?.guideDraft;
+    if (typeof incoming !== 'string') return;
+    let active = true;
+    queueMicrotask(() => {
+    if (!active) return;
+    setIntent(incoming.slice(0,8000));
+    const disclosure = document.querySelector<HTMLDetailsElement>('.new-project-disclosure');
+    if (disclosure) { disclosure.open = true; disclosure.scrollIntoView({behavior:'instant',block:'center'}); }
+    });
+    return () => { active = false; };
+  }, [location.key, location.state]);
+  useEffect(() => {
     if (!cloudAuth) return;
     let active = true;
     const unsubscribe = onAuthStateChanged(cloudAuth, (next) => {
