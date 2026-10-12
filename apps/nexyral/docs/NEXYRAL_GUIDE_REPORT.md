@@ -32,3 +32,9 @@ Created: `cloudflare/guide.ts`, `cloudflare/migrations/0005_guide_usage.sql`, `s
 Modified: `cloudflare/worker.ts`, `cloudflare/cloud.test.ts`, `wrangler.jsonc`, `src/main.tsx`, `src/pages/CloudStudio.tsx`, `src/pages/PolicyPage.tsx`, `tests/cloud/studio.spec.ts`, `tests/cloud/preview.spec.ts`, `package.json` (live-check command only).
 
 No dependencies added. Existing lazy 3D chunk size advisory remains. Real signed-in production Gemini guidance still needs a user session check; controlled tests must not be described as real customer authentication or production inference verification.
+
+## Branding update — 12 October 2026
+
+Removed underlying model branding from Guide labels, workspace controls/status, the refinement panel, public example provenance, product pages, documentation, privacy text and walkthrough captions. Privacy text still discloses external AI processing. Internal provider credentials and API routing remain intact.
+
+Re-recorded the 30-second walkthrough with the current interface; example account/output labels remain. Build and lint passed, along with 21 backend tests and 15 affected browser cases. Production checks found no provider name in rendered homepage, Product, How It Works, Features, Documentation, Privacy, Workspace and Guide text. Published video and caption bytes matched the new assets. Deployment version: `6d3d5dfa-a6ca-41d8-b7d8-499c9e87314d`.
