@@ -13,7 +13,7 @@ Describe your frontend: its pages, behavior, and style.
 Save your project to your private workspace.
 
 00:20.000 --> 00:25.000
-Generate source with Gemini. Example output; response times vary.
+Generate source with NEXYRAL AI. Example output; response times vary.
 
 00:25.000 --> 00:30.000
 Download and review the source. Build and test locally before release.

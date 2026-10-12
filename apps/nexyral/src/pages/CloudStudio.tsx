@@ -191,7 +191,7 @@ export default function CloudStudio() {
     const id = selected.id;
     setPhase("generating");
     await perform(async () => {
-      setNotice("Gemini is generating your frontend. Keep this tab open.");
+      setNotice("NEXYRAL AI is generating your frontend. Keep this tab open.");
       const value = await request<{ source: Source }>(
         `/projects/${id}/generate`,
         {},
@@ -217,7 +217,7 @@ export default function CloudStudio() {
   async function reviseSource(operation: "refine" | "restore", body: Record<string,string>): Promise<Source> {
     if (!selected) throw new Error("Open a saved project first.");
     const id=selected.id;
-    setBusy(true);setNotice(operation==="refine" ? "Gemini is updating your saved app. Your previous source is protected." : "Restoring your saved version…");
+    setBusy(true);setNotice(operation==="refine" ? "NEXYRAL AI is updating your saved app. Your previous source is protected." : "Restoring your saved version…");
     try {
       const saved=await request<{source:Source;updated_at:string}>(`/projects/${id}/${operation}`,{...body,updatedAt:selected.updated_at});
       setSelected(current=>current?.id===id?{...current,source:saved.source,updated_at:saved.updated_at,status:"generated",error:undefined}:current);
@@ -254,7 +254,7 @@ export default function CloudStudio() {
               : "Intent deserves execution."}
           </h1>
           <p>
-            Describe your app. Generate with Gemini. Try it, refine it, and keep the source.
+            Describe your app. Generate app. Try it, refine it, and keep the source.
           </p>
         </div>
         {user && (
@@ -283,7 +283,7 @@ export default function CloudStudio() {
             confirm={code=>void perform(async()=>{await request('/verification/confirm',{code});setCodeVerified(true);},'Email verified. You can start generating.')} />}
           <ol className="cloud-stages" aria-label="Project workflow">
             <li><span>01</span><div><strong>Capture intent</strong><small>{selected ? "Project saved" : "Describe your frontend"}</small></div></li>
-            <li><span>02</span><div><strong>Generate source</strong><small>{phase === "generating" ? "Gemini is working" : selected?.source ? "Source received" : "Powered by Gemini"}</small></div></li>
+            <li><span>02</span><div><strong>Generate source</strong><small>{phase === "generating" ? "NEXYRAL AI is working" : selected?.source ? "Source received" : "Powered by NEXYRAL AI"}</small></div></li>
             <li><span>03</span><div><strong>Try & refine</strong><small>Preview, edit and export</small></div></li>
           </ol>
           <div className="cloud-workbench">
@@ -339,7 +339,7 @@ export default function CloudStudio() {
               {selected && (
                 <div className="cloud-output">
                   <h2>{selected.intent}</h2>
-                  {phase === "generating" && <div className="cloud-generation-state" role="status"><span className="cloud-pulse" /><span>Generating with Gemini. Your project is saved; source appears when the response completes.</span></div>}
+                  {phase === "generating" && <div className="cloud-generation-state" role="status"><span className="cloud-pulse" /><span>Generating with NEXYRAL AI. Your project is saved; source appears when the response completes.</span></div>}
                   <p>
                     Frontend source generation · React + TypeScript · No backend
                     or deployment implied.
@@ -353,7 +353,7 @@ export default function CloudStudio() {
                       onClick={() => void generate()}
                     >
                       <Sparkles size={18} />
-                      {phase === "generating" ? "Generating source…" : awaitingGeneration ? "Generation in progress" : selected.status === "generating" ? "Retry interrupted generation" : selected.status === "failed" ? "Retry generation" : "Generate with Gemini"}
+                      {phase === "generating" ? "Generating source…" : awaitingGeneration ? "Generation in progress" : selected.status === "generating" ? "Retry interrupted generation" : selected.status === "failed" ? "Retry generation" : "Generate app"}
                     </button>
                   ) : (
                     <SourceOutput key={selected.id} source={selected.source} draftKey={`nexyral-source-draft:${user.uid}:${selected.id}`} onDirtyChange={setSourceDirty} operations={awaitingGeneration ? undefined : {

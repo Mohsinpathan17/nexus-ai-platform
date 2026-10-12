@@ -54,7 +54,7 @@ export default function Showcase() {
         <span className="eyebrow">THE REQUEST</span><h3>{example.title}</h3><p>{example.description}</p>
         <details><summary>Read the exact AI brief</summary><p>{example.brief}</p></details>
         <div className="live-provenance"><span className="eyebrow">BUILD RECORD</span>
-          {result ? <><strong>{fresh ? 'Generated just now' : 'Saved AI build'}</strong><span>{result.model}</span><time dateTime={result.generatedAt}>{new Date(result.generatedAt).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'})}</time><p>Generated through NEXYRAL’s Gemini integration. Frontend only; sample data, no connected backend.</p></> : <p>The first visitor’s build is saved so everyone can use it without repeating the AI request.</p>}
+          {result ? <><strong>{fresh ? 'Generated just now' : 'Saved AI build'}</strong><span>NEXYRAL AI</span><time dateTime={result.generatedAt}>{new Date(result.generatedAt).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'})}</time><p>Generated with NEXYRAL AI. Frontend only; sample data, no connected backend.</p></> : <p>The first visitor’s build is saved so everyone can use it without repeating the AI request.</p>}
         </div>
         <Link to="/get-started" className="live-custom-link">Now build your own idea <ArrowUpRight size={17}/></Link>
       </aside>
@@ -62,7 +62,7 @@ export default function Showcase() {
         <div className="live-app-bar"><span role="status"><i/> {result ? 'INTERACTIVE PREVIEW' : 'NEXYRAL / BUILD'}</span>{result && <button onClick={()=>setSourceOpen(!sourceOpen)} aria-expanded={sourceOpen}><Code2 size={16}/>{sourceOpen ? 'Show app' : 'View code'}</button>}</div>
         {result ? sourceOpen ? <pre className="live-source" tabIndex={0} aria-label="Actual AI-generated source">{`<!-- MARKUP -->\n${result.source.html}\n\n/* STYLES */\n${result.source.css}\n\n// JAVASCRIPT\n${result.source.js}`}</pre> : <GeneratedPreview key={result.id} source={result.source} title={example.title}/> : <div className="live-build-empty">
           {status==='loading' || status==='building' ? <Loader2 size={32} className="live-loading"/> : <Code2 size={38}/>}
-          <h3>{status==='building' ? 'Gemini is building this app.' : status==='loading' ? 'Loading the build record…' : status==='error' ? 'The build needs another look.' : 'A brief goes in. An app comes out.'}</h3>
+          <h3>{status==='building' ? 'NEXYRAL AI is building this app.' : status==='loading' ? 'Loading the build record…' : status==='error' ? 'The build needs another look.' : 'A brief goes in. An app comes out.'}</h3>
           <p role="status">{error || (status==='building' ? 'This is a real AI request. We’ll show the app when the provider returns complete code.' : status==='loading' ? 'Looking for a saved AI build.' : 'Start a real build of this brief, then try the result here.')}</p>
           {!['loading','building'].includes(status) && <button className="button button-primary" onClick={()=>void build()}>{status==='error' ? <RefreshCw size={17}/> : <Play size={17}/>} {status==='error' ? 'Try again' : 'Build this example'}</button>}
         </div>}

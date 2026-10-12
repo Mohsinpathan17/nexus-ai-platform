@@ -6,6 +6,6 @@ export default function BuildWalkthrough() {
       <track kind="captions" src="/media/nexyral-how-to-build.vtt" srcLang="en" label="English" default/>
       Your browser cannot play this video. <a href="/media/nexyral-how-to-build.mp4">Download the walkthrough</a>.
     </video>
-    <details><summary>Read the walkthrough</summary><ol><li>Create an account with email or Google.</li><li>For email signup, enter the six-digit verification code from your email.</li><li>Describe the pages, behavior and style of your frontend.</li><li>Save your project to your workspace.</li><li>Generate React and TypeScript source with Gemini. Response times vary.</li><li>Download the project, review it, then build and test locally before deployment.</li></ol></details>
+    <details><summary>Read the walkthrough</summary><ol><li>Create an account with email or Google.</li><li>For email signup, enter the six-digit verification code from your email.</li><li>Describe the pages, behavior and style of your frontend.</li><li>Save your project to your workspace.</li><li>Generate React and TypeScript source with NEXYRAL AI. Response times vary.</li><li>Download the project, review it, then build and test locally before deployment.</li></ol></details>
   </div>;
 }

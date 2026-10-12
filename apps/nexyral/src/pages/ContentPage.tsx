@@ -60,8 +60,8 @@ export default function ContentPage() {
   const key = useLocation().pathname.replace(/^\/+|\/+$/g, "");
   const cloud = import.meta.env.VITE_SERVERLESS === "1";
   const cloudContent: typeof content = {
-    product: {title:"Your idea, made tangible.",intro:"Describe a web app, generate React code with Gemini, and try it in an isolated browser preview. Ask AI to revise it, recover earlier versions, and export the project."},
-    "how-it-works": {title:"Describe. Try. Make it yours.",intro:"Start with one clear idea. Your account keeps the project; Gemini creates the frontend; you decide what to change and keep."},
+    product: {title:"Your idea, made tangible.",intro:"Describe a web app, generate React code with NEXYRAL AI, and try it in an isolated browser preview. Ask AI to revise it, recover earlier versions, and export the project."},
+    "how-it-works": {title:"Describe. Try. Make it yours.",intro:"Start with one clear idea. Your account keeps the project; NEXYRAL AI creates the frontend; you decide what to change and keep."},
     features: {title:"Tools you can use today.",intro:"AI frontend generation and revisions, interactive React previews, source editing, saved version recovery, and downloadable projects. Automated backend engineering and deployment are still ahead."},
     docs: {title:"Your first app, step by step.",intro:"A practical guide to creating an account, generating your app, using the preview, editing your files, and keeping the project."},
     status: {title:"Check the current service.",intro:"Live configuration from the serverless API. Provider configuration is separate from provider availability, and a preview is separate from a verified production build."},
@@ -86,7 +86,7 @@ export default function ContentPage() {
       </section>
       {key === "product" && (cloud ? <WorkspaceInvite /> : <Workspace />)}
       {key === "how-it-works" && (cloud ? <GettingStartedGuide /> : <Workflow />)}
-      {key === "features" && (cloud ? <section className="route-articles container">{[["AI-generated React","Save your idea and explicitly ask Gemini to create the frontend."],["Interactive preview","Run your app in an isolated frame with phone and desktop views."],["Ask for improvements","Describe a change in ordinary language. Gemini revises your existing app instead of starting over."],["Edit and save","Change the code, preview changes, and save to your account with stale-write protection."],["Recover a version","The last ten source snapshots can be restored without another AI request. Failed revisions preserve the last app."],["Recover and export","Recover unsaved edits in the same browser tab and download a React + TypeScript project."]].map(([title,text])=><article key={title}><h2>{title}</h2><p>{text}</p></article>)}</section> : <Features />)}
+      {key === "features" && (cloud ? <section className="route-articles container">{[["AI-generated React","Save your idea and explicitly ask NEXYRAL AI to create the frontend."],["Interactive preview","Run your app in an isolated frame with phone and desktop views."],["Ask for improvements","Describe a change in ordinary language. NEXYRAL AI revises your existing app instead of starting over."],["Edit and save","Change the code, preview changes, and save to your account with stale-write protection."],["Recover a version","The last ten source snapshots can be restored without another AI request. Failed revisions preserve the last app."],["Recover and export","Recover unsaved edits in the same browser tab and download a React + TypeScript project."]].map(([title,text])=><article key={title}><h2>{title}</h2><p>{text}</p></article>)}</section> : <Features />)}
       {key === "solutions" && <Solutions />}
       {key === "pricing" && <Pricing />}
       {key === "docs" && <GettingStartedGuide />}

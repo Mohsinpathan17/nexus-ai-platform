@@ -1,5 +1,5 @@
 import type { ProjectSource } from './project-export';
-/** Prepared starter, deliberately separate from the recorded Gemini-generated public examples. */
+/** Prepared starter, deliberately separate from the recorded NEXYRAL AI-generated public examples. */
 export const starterProject: ProjectSource = {
   app: `import React, { useState } from 'react';
 interface Task { id: number; title: string; done: boolean }
